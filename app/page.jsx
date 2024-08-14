@@ -7,6 +7,7 @@ import Link from "next/link";
 
 const Page = () => {
   return (
+    //for change
     <div className="md:mt-10 mt-20 px-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       <Link href="/calendar">
         <div class="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] p-5 transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
