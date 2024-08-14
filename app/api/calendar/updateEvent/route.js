@@ -1,8 +1,12 @@
-import { config, connectToDB, closeConnection } from "@/utils/database";
+import {
+  config,
+  connectToDB,
+  closeConnection,
+} from "../../../../utils/database";
 const sql = require("mssql");
 
 // PUT (update)
-export const PUT = async (req) => {
+export const PATCH = async (req) => {
   try {
     await connectToDB();
     const pool = await sql.connect(config);

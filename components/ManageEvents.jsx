@@ -124,7 +124,7 @@ const ManageEvents = ({ events, setLoading, onEventAdded }) => {
 
     try {
       const response = await fetch(`/api/calendar/updateEvent`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
