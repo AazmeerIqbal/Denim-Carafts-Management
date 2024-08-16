@@ -5,6 +5,7 @@ import ManageEvents from "@/components/ManageEvents";
 import { useSession } from "next-auth/react";
 import { useStateContext } from "@/components/contexts/ContextProvider";
 import AddEventPopUp from "@/components/AddEventPopUp";
+import { useRouter, useParams } from "next/navigation";
 
 // MUI Tabs
 import Box from "@mui/material/Box";
@@ -17,6 +18,8 @@ const Page = () => {
   const { currentColor } = useStateContext();
   const { data: session, status } = useSession();
 
+  const { id } = useParams();
+
   const [addEventPop, setAddEventPop] = useState(false);
   const [Events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +27,15 @@ const Page = () => {
   const fetchEvents = async () => {
     if (session?.user?.id) {
       try {
-        const response = await fetch("/api/calendar/getEvents");
+        // Construct URL using session.user.id
+        const url = `/api/calendar/${session?.user?.id}/getEvents`; // Ensure this matches your API route
+        const response = await fetch(url);
+        console.log(url);
+
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
+
         const eventsData = await response.json();
 
         const formatDateTime = (dateTime) => {
@@ -69,6 +77,7 @@ const Page = () => {
 
   useEffect(() => {
     fetchEvents();
+    console.log(session.user);
   }, [session?.user?.id]);
 
   const handleEventAdded = () => {

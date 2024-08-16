@@ -1,5 +1,6 @@
 import { config, connectToDB, closeConnection } from "@/utils/database";
 import sql from "mssql";
+import { revalidatePath } from "next/cache";
 
 export const POST = async (req) => {
   const {
@@ -39,15 +40,24 @@ export const POST = async (req) => {
 
     await closeConnection();
 
+    revalidatePath("/calendar"); // Adjust this path as necessary
+
     return new Response(
-      JSON.stringify({ message: "Event added successfully", result }),
-      { status: 201 }
+      JSON.stringify({ message: "Event added successfully" }),
+      {
+        status: 200,
+      }
     );
   } catch (error) {
     console.error("Failed to add event:", error);
     return new Response(
       JSON.stringify({ message: "Failed to add event", error }),
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store", // prevents caching
+        },
+      }
     );
   }
 };

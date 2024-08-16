@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect } from "react";
 import { MdOutlineCancel } from "react-icons/md";
+import { GiWool } from "react-icons/gi";
 import Link from "next/link";
 import { useStateContext } from "@/components/contexts/ContextProvider";
 import { useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
 import { MdDashboard } from "react-icons/md";
 import { FaUser, FaUsers, FaCalendarAlt } from "react-icons/fa";
 
@@ -12,8 +12,6 @@ const Sidebar = () => {
   const { data: session, status } = useSession();
   const { currentColor, activeMenu, setActiveMenu, screenSize } =
     useStateContext();
-
-  const pathname = usePathname();
 
   const handleCloseSideBar = () => {
     if (activeMenu !== undefined && screenSize <= 900) {
@@ -96,6 +94,18 @@ const Sidebar = () => {
               >
                 <FaCalendarAlt />
                 <span className="capitalize">Calendar</span>
+              </Link>
+              <Link
+                href="/fabricList"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor:
+                    pathname === "/fabricList" ? currentColor : "",
+                }}
+                className={pathname === "/fabricList" ? activeLink : normalLink}
+              >
+                <GiWool />
+                <span className="capitalize">Fabric List</span>
               </Link>
             </div>
           </div>

@@ -52,7 +52,9 @@ const Navbar = () => {
     const fetchEvents = async () => {
       if (session?.user?.id) {
         try {
-          const response = await fetch("/api/calendar/getEvents");
+          const response = await fetch(
+            `/api/calendar/${session?.user?.id}/getEvents`
+          );
           if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
           }

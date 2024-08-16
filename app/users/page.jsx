@@ -26,9 +26,9 @@ const Page = () => {
     fetchUsers();
   }, []);
 
-  useEffect(() => {
-    console.log("Users data:", users);
-  }, [users]);
+  // useEffect(() => {
+  //   console.log("Users data:", users);
+  // }, [users]);
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);

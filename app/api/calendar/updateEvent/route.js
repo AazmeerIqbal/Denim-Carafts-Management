@@ -3,10 +3,10 @@ import {
   connectToDB,
   closeConnection,
 } from "../../../../utils/database";
+import { revalidatePath } from "next/cache";
 const sql = require("mssql");
 
-// PUT (update)
-export const PATCH = async (req) => {
+export const PUT = async (req) => {
   try {
     await connectToDB();
     const pool = await sql.connect(config);
@@ -14,7 +14,6 @@ export const PATCH = async (req) => {
     const { id, title, description, location, start, end, people } =
       await req.json();
 
-    // Convert people array to JSON string if it's an array
     const peopleStr = Array.isArray(people) ? JSON.stringify(people) : people;
 
     const query = `
@@ -38,17 +37,30 @@ export const PATCH = async (req) => {
       .input("location", sql.NVarChar(500), location)
       .input("start", sql.DateTime, start)
       .input("end", sql.DateTime, end)
-      .input("people", sql.NVarChar(sql.MAX), peopleStr) // Adjusted for JSON string or plain string
+      .input("people", sql.NVarChar(sql.MAX), peopleStr)
       .query(query);
 
     await closeConnection();
 
+    // Revalidate the calendar page after the update
+    revalidatePath("/calendar");
+
     return new Response(
       JSON.stringify({ message: "Event updated successfully" }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store", // prevents caching
+        },
+      }
     );
   } catch (err) {
     console.error("Error:", err);
-    return new Response("Failed to update event", { status: 500 });
+    return new Response("Failed to update event", {
+      status: 500,
+      headers: {
+        "Cache-Control": "no-store", // prevents caching
+      },
+    });
   }
 };

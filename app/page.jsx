@@ -18,7 +18,7 @@ const Page = () => {
         </div>
       </Link>
 
-      <Link href="/">
+      <Link href="/fabricList">
         <div class="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] p-5 transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
           <p class="dark:text-white text-black text-2xl w-3/4">Fabric List</p>
 
