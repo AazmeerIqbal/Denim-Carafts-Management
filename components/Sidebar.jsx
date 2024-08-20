@@ -5,6 +5,7 @@ import { GiWool } from "react-icons/gi";
 import Link from "next/link";
 import { useStateContext } from "@/components/contexts/ContextProvider";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { MdDashboard } from "react-icons/md";
 import { FaUser, FaUsers, FaCalendarAlt } from "react-icons/fa";
 
@@ -12,6 +13,8 @@ const Sidebar = () => {
   const { data: session, status } = useSession();
   const { currentColor, activeMenu, setActiveMenu, screenSize } =
     useStateContext();
+
+  const pathname = usePathname();
 
   const handleCloseSideBar = () => {
     if (activeMenu !== undefined && screenSize <= 900) {
