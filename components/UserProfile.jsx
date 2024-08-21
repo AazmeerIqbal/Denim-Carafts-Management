@@ -19,8 +19,7 @@ const UserProfile = () => {
 
   const handleLogout = async () => {
     setIsClicked(initialState);
-    await signOut(); // This will log out and redirect to login page
-    router.push("/login");
+    await signOut();
   };
 
   return (
@@ -38,7 +37,11 @@ const UserProfile = () => {
       <div className="flex gap-5 items-center mt-6 border-color border-b-1 pb-6">
         <img
           className="rounded-full md:h-24 h-16 md:w-24 w-16"
-          src="/assets/user.jpg"
+          src={
+            session?.user?.name == "DC"
+              ? "/assets/86.png"
+              : "/assets/avatar.jpg"
+          }
           alt="user-profile"
         />
         <div>

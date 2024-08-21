@@ -153,7 +153,11 @@ const Navbar = () => {
           >
             <img
               className="rounded-full w-8 h-8"
-              src="/assets/user.jpg"
+              src={
+                session?.user?.name == "DC"
+                  ? "/assets/86.png"
+                  : "/assets/avatar.jpg"
+              }
               alt="user-profile"
             />
             <p>

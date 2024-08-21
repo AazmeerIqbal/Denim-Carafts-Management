@@ -33,7 +33,7 @@ const Sidebar = () => {
         <>
           <div className="flex justify-between items-center">
             <Link
-              href="/dashboard"
+              href="/"
               onClick={handleCloseSideBar}
               className="items-center gap-3 ml-3 mt-4 flex text-2xl font-extrabold tracking-wider dark:text-white text-slate-900"
             >

@@ -18,6 +18,10 @@ const Layout = ({ children }) => {
 
   return (
     <html lang="en">
+      <head>
+        <title>Denim Crafts</title>
+        <link rel="icon" type="image/x-icon" href="/assets/DC_logo.jpg" />
+      </head>
       <body className={openSans.className}>
         <Provider>
           <ContextProvider>

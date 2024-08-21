@@ -30,13 +30,13 @@ const FabricList = () => {
 
   const [formData, setFormData] = useState({
     companyId: session?.user?.companyId,
-    location: "",
-    showHide: "",
+    location: "1",
+    showHide: "1",
     groupHead: "",
     qtyMin: "",
     qtyMax: "",
-    dtFrom: dayjs().format("YYYY-MM-DD"),
-    dtTo: dayjs().format("YYYY-MM-DD"),
+    dtFrom: "2020-01-01",
+    dtTo: dayjs().toDate(),
     reportFormat: "Preview",
   });
 
@@ -44,15 +44,15 @@ const FabricList = () => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
     // Log the change immediately to verify the value being set
-    // console.log(name, value); // This will show the updated values as you change the fields
+    console.log(name, value); // This will show the updated values as you change the fields
   };
 
-  const handleDateChange = (name, date) => {
-    setFormData({
-      ...formData,
-      [name]: date ? dayjs(date).format("YYYY-MM-DD") : null,
-    });
-  };
+  // const handleDateChange = (name, date) => {
+  //   setFormData({
+  //     ...formData,
+  //     [name]: date ? dayjs(date).format("YYYY-MM-DD") : null,
+  //   });
+  // };
 
   ////////////////////////////////////////////////////////////////
 
@@ -227,7 +227,7 @@ const FabricList = () => {
               />
             </div>
 
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               <label className="text-gray-700 font-semibold">Dt From:</label>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
@@ -247,7 +247,7 @@ const FabricList = () => {
                   format="DD/MM/YYYY"
                 />
               </LocalizationProvider>
-            </div>
+            </div> */}
 
             <div className="flex items-end">
               <button
@@ -261,7 +261,15 @@ const FabricList = () => {
         </div>
       </div>
       {listDisplay ? (
-        <FabricReport data={list} setListDisplay={setListDisplay} />
+        <FabricReport
+          data={list}
+          setListDisplay={setListDisplay}
+          cc={formData.companyId}
+          bi={formData.location}
+          df={dayjs(formData.dtFrom).format("DD-MM-YYYY")}
+          dt={dayjs(formData.dtTo).format("DD-MM-YYYY")}
+          ghn={formData.groupHead}
+        />
       ) : (
         <></>
       )}

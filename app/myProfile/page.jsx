@@ -39,6 +39,8 @@ const MyProfile = () => {
   const [roles, setRoles] = useState([]);
   const [changePassword, setChangePassword] = useState(false);
 
+  console.log(session.user);
+
   useEffect(() => {
     setOriginalValues(values);
 
@@ -157,7 +159,11 @@ const MyProfile = () => {
         <div className="flex items-center gap-4">
           <img
             className="rounded-full h-24 w-24"
-            src="/assets/user.jpg"
+            src={
+              session?.user?.name == "DC"
+                ? "/assets/86.png"
+                : "/assets/avatar.jpg"
+            }
             alt="user-profile"
           />
           <p className="text-3xl font-extrabold tracking-tight text-slate-900">
