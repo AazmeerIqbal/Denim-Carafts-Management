@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import FabricReport from "@/components/Reports/FabricList";
+import Loader from "@/components/Loader";
 
 //mui
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
@@ -15,25 +16,18 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function chunkArray(array, chunkSize) {
-  const result = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
-    result.push(array.slice(i, i + chunkSize));
-  }
-  return result;
-}
-
 const FabricList = () => {
   const { data: session } = useSession();
   const [listDisplay, setListDisplay] = useState(false);
   const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(false); // New state to handle loader visibility
 
   const [formData, setFormData] = useState({
     companyId: session?.user?.companyId,
     location: "1",
     showHide: "1",
-    groupHead: "",
-    qtyMin: "",
+    groupHead: "660",
+    qtyMin: "0",
     qtyMax: "",
     dtFrom: "2020-01-01",
     dtTo: dayjs().toDate(),
@@ -43,16 +37,7 @@ const FabricList = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
-    // Log the change immediately to verify the value being set
-    console.log(name, value); // This will show the updated values as you change the fields
   };
-
-  // const handleDateChange = (name, date) => {
-  //   setFormData({
-  //     ...formData,
-  //     [name]: date ? dayjs(date).format("YYYY-MM-DD") : null,
-  //   });
-  // };
 
   ////////////////////////////////////////////////////////////////
 
@@ -75,14 +60,12 @@ const FabricList = () => {
 
       const data = await response.json();
       setCompanies(data);
-      console.log("Fetched company list:", data); // Corrected to use the fetched data
-      // Handle the data (e.g., display it in a table or another UI component)
     } catch (error) {
       console.error("Failed to fetch company list:", error);
     }
   };
 
-  //Fill Group Head Dorpdown
+  //Fill Group Head Dropdown
   const [groupHeads, setGroupHeads] = useState([]);
 
   const getGroupHeadDropdown = async () => {
@@ -100,7 +83,6 @@ const FabricList = () => {
 
       const data = await response.json();
       setGroupHeads(data);
-      console.log(groupHeads);
     } catch (error) {
       console.error("Failed to fetch group head list:", error);
     }
@@ -113,6 +95,8 @@ const FabricList = () => {
 
   ///// Get Fabric List
   const handleGetReport = async () => {
+    setLoading(true); // Show loader before fetching
+
     const queryParams = new URLSearchParams();
 
     Object.keys(formData).forEach((key) => {
@@ -137,25 +121,24 @@ const FabricList = () => {
       const data = await response.json();
       setList(data);
       setListDisplay(true);
-      console.log("Fetched fabric list:", data);
-      // Handle the data (e.g., display it in a table or another UI component)
     } catch (error) {
       console.error("Failed to fetch fabric list:", error);
+    } finally {
+      setLoading(false); // Hide loader after fetching
     }
   };
 
-  // const chunkedUsers = chunkArray(users, 3);
-
   return (
     <>
+      {loading && <Loader />} {/* Display loader when loading is true */}
       <div className="m-2 md:m-8 mt-24 p-2 md:p-10 bg-white rounded-3xl drop-shadow-xl">
         <div className="flex items-center gap-4 mb-6">
           <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Fabric List
+            Fabric Stock Position
           </h2>
         </div>
         <div className="overflow-x-auto">
-          <div className="mt-8 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 p-5 bg-white rounded-lg shadow-md">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 p-5 bg-white rounded-lg shadow-md">
             <div className="flex flex-col">
               <label className="text-gray-700 font-semibold">Location:</label>
               <select
@@ -206,7 +189,7 @@ const FabricList = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold">Qty min:</label>
+              <label className="text-gray-700 font-semibold">Qty {">"}</label>
               <input
                 type="text"
                 name="qtyMin"
@@ -217,7 +200,7 @@ const FabricList = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold">Qty max:</label>
+              <label className="text-gray-700 font-semibold">Qty {"<"}</label>
               <input
                 type="text"
                 name="qtyMax"
@@ -226,28 +209,6 @@ const FabricList = () => {
                 className="mt-1 p-2 border border-gray-300 rounded-lg bg-white text-gray-700"
               />
             </div>
-
-            {/* <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold">Dt From:</label>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  value={formData.dtFrom ? dayjs(formData.dtFrom) : null}
-                  onChange={(date) => handleDateChange("dtFrom", date)}
-                  format="DD/MM/YYYY"
-                />
-              </LocalizationProvider>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-semibold">Dt To:</label>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  value={formData.dtTo ? dayjs(formData.dtTo) : null}
-                  onChange={(date) => handleDateChange("dtTo", date)}
-                  format="DD/MM/YYYY"
-                />
-              </LocalizationProvider>
-            </div> */}
 
             <div className="flex items-end">
               <button
@@ -270,9 +231,7 @@ const FabricList = () => {
           dt={dayjs(formData.dtTo).format("DD-MM-YYYY")}
           ghn={formData.groupHead}
         />
-      ) : (
-        <></>
-      )}
+      ) : null}
       <ToastContainer />
     </>
   );

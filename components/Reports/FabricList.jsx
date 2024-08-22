@@ -59,6 +59,12 @@ const FabricReport = ({ data, setListDisplay, cc, bi, df, dt, ghn }) => {
     setCurrentPage(totalPages);
   };
 
+  // Calculate the total stock outside of JSX
+  const totalStock = filteredUsers.reduce(
+    (acc, item) => (item.BalanceQty1 > 0 ? acc + item.BalanceQty1 : acc),
+    0
+  );
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
       <div
@@ -68,7 +74,10 @@ const FabricReport = ({ data, setListDisplay, cc, bi, df, dt, ghn }) => {
         }}
       >
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Fabric List</h1>
+          <h1 className="text-2xl font-bold inline-block">
+            Fabric Stock Quantity
+          </h1>
+          <p>Stock Qty: {totalStock.toLocaleString()}</p>
           <div className="flex space-x-2">
             <button
               className="text-blue-500 hover:text-blue-700 transition duration-300"
@@ -100,7 +109,8 @@ const FabricReport = ({ data, setListDisplay, cc, bi, df, dt, ghn }) => {
             placeholder="Search..."
             value={searchQuery}
             onChange={handleSearch}
-            className="p-2 pl-10 mb-4 border border-gray-300 rounded-lg w-full"
+            className={`p-2 pl-10 mb-4 border-2 rounded-lg w-full`}
+            style={{ borderColor: currentColor }}
           />
         </div>
 
@@ -124,12 +134,12 @@ const FabricReport = ({ data, setListDisplay, cc, bi, df, dt, ghn }) => {
                     key={item.row_num || index}
                     className={
                       item.BalanceQty1 < 0
-                        ? "bg-red-400 text-white text-right"
-                        : "text-right"
+                        ? "bg-red-400 text-white text-center"
+                        : "text-center"
                     }
                   >
                     <td className="px-4 py-2 border border-gray-200">
-                      {item.row_num}
+                      {index + 1}
                     </td>
                     <td className="px-4 py-2 border border-gray-200">
                       <Link
@@ -141,7 +151,7 @@ const FabricReport = ({ data, setListDisplay, cc, bi, df, dt, ghn }) => {
                         {item.ArticalNo}
                       </Link>
                     </td>
-                    <td className="px-4 py-2 border border-gray-200">
+                    <td className="px-4 py-2 border border-gray-200 text-right">
                       {item.BalanceQty1.toLocaleString()}
                     </td>
                     <td className="px-4 py-2 border border-gray-200"></td>

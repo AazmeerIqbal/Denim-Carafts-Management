@@ -38,7 +38,7 @@ const Sidebar = () => {
               className="items-center gap-3 ml-3 mt-4 flex text-2xl font-extrabold tracking-wider dark:text-white text-slate-900"
             >
               <img src="/assets/DC_logo.jpg" alt="Logo" className="h-10 w-10" />
-              <span>{session.user.companyName}</span>
+              <span>{session?.user?.companyName}</span>
             </Link>
             {/* <TooltipComponent content="Menu" position="BottomCenter"> */}
             <button

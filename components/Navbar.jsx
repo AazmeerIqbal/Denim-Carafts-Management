@@ -154,7 +154,7 @@ const Navbar = () => {
             <img
               className="rounded-full w-8 h-8"
               src={
-                session?.user?.name == "DC"
+                session?.user?.name == "Farhan"
                   ? "/assets/86.png"
                   : "/assets/avatar.jpg"
               }
@@ -163,7 +163,7 @@ const Navbar = () => {
             <p>
               <span className="text-gray-400 text-base">Hi,</span>{" "}
               <span className="text-gray-400 font-bold ml-1 text-base">
-                {session.user.name}
+                {session?.user?.name}
               </span>
             </p>
             <MdKeyboardArrowDown className="text-gray-400 text-base" />

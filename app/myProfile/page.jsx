@@ -39,8 +39,6 @@ const MyProfile = () => {
   const [roles, setRoles] = useState([]);
   const [changePassword, setChangePassword] = useState(false);
 
-  console.log(session.user);
-
   useEffect(() => {
     setOriginalValues(values);
 
@@ -62,7 +60,7 @@ const MyProfile = () => {
     fetchRoles();
   }, [session?.user?.id]);
 
-  console.log(session.user);
+  console.log(session?.user);
   useEffect(() => {
     if (status === "authenticated") {
       setValues({
@@ -97,7 +95,7 @@ const MyProfile = () => {
         };
 
         const response = await fetch(
-          `/api/update-profile?id=${session.user.id}`,
+          `/api/update-profile?id=${session?.user?.id}`,
           {
             method: "PATCH",
             headers: {
@@ -160,7 +158,7 @@ const MyProfile = () => {
           <img
             className="rounded-full h-24 w-24"
             src={
-              session?.user?.name == "DC"
+              session?.user?.name == "Farhan"
                 ? "/assets/86.png"
                 : "/assets/avatar.jpg"
             }

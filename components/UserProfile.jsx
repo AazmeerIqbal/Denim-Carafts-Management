@@ -18,8 +18,9 @@ const UserProfile = () => {
   const { data: session, status } = useSession();
 
   const handleLogout = async () => {
-    setIsClicked(initialState);
-    await signOut();
+    setIsClicked(initialState); // Reset any UI state if needed
+    await signOut({ redirect: false }); // Sign out without auto-redirecting
+    router.push("/login"); // Manually redirect to login page
   };
 
   return (
@@ -38,7 +39,7 @@ const UserProfile = () => {
         <img
           className="rounded-full md:h-24 h-16 md:w-24 w-16"
           src={
-            session?.user?.name == "DC"
+            session?.user?.name == "Farhan"
               ? "/assets/86.png"
               : "/assets/avatar.jpg"
           }
@@ -47,7 +48,7 @@ const UserProfile = () => {
         <div>
           <p className="font-semibold md:text-xl text-base dark:text-gray-200">
             {" "}
-            {session.user.fullName}{" "}
+            {session?.user?.fullName}{" "}
           </p>
           <p className="text-gray-500 text-sm dark:text-gray-400">
             {" "}
@@ -55,7 +56,7 @@ const UserProfile = () => {
           </p>
           <p className="text-gray-500 text-sm font-semibold dark:text-gray-400">
             {" "}
-            {session.user.email}{" "}
+            {session?.user?.email}{" "}
           </p>
         </div>
       </div>

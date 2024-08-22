@@ -77,7 +77,7 @@ const Page = () => {
 
   useEffect(() => {
     fetchEvents();
-    console.log(session.user);
+    console.log(session?.user);
   }, [session?.user?.id]);
 
   const handleEventAdded = () => {
