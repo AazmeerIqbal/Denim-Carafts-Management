@@ -6,12 +6,6 @@ import { useSession } from "next-auth/react";
 import FabricReport from "@/components/Reports/FabricList";
 import Loader from "@/components/Loader";
 
-//mui
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
 // Notification Toaster
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

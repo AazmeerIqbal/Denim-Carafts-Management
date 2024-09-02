@@ -30,6 +30,7 @@
     "@schedule-x/theme-default": "^1.57.1",
     "@syncfusion/ej2-react-buttons": "^26.2.8",
     "@syncfusion/ej2-react-schedule": "^26.2.7",
+    "chart.js": "^4.4.4",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.12",
     "formik": "^2.4.6",

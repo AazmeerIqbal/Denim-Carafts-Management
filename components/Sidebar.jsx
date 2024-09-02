@@ -6,7 +6,11 @@ import Link from "next/link";
 import { useStateContext } from "@/components/contexts/ContextProvider";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { MdDashboard } from "react-icons/md";
+import {
+  MdDashboard,
+  MdOutlineInventory2,
+  MdOutlineSummarize,
+} from "react-icons/md";
 import { FaUser, FaUsers, FaCalendarAlt } from "react-icons/fa";
 
 const Sidebar = () => {
@@ -65,18 +69,6 @@ const Sidebar = () => {
                 <span className="capitalize">Dashboard</span>
               </Link>
               <Link
-                href="/myProfile"
-                onClick={handleCloseSideBar}
-                style={{
-                  backgroundColor:
-                    pathname === "/myProfile" ? currentColor : "",
-                }}
-                className={pathname === "/myProfile" ? activeLink : normalLink}
-              >
-                <FaUser />
-                <span className="capitalize">My Profile</span>
-              </Link>
-              <Link
                 href="/users"
                 onClick={handleCloseSideBar}
                 style={{
@@ -98,6 +90,13 @@ const Sidebar = () => {
                 <FaCalendarAlt />
                 <span className="capitalize">Calendar</span>
               </Link>
+
+              {/*///////////////////// Reports /////////////////////*/}
+
+              <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
+                Reports
+              </p>
+
               <Link
                 href="/fabricList"
                 onClick={handleCloseSideBar}
@@ -109,6 +108,67 @@ const Sidebar = () => {
               >
                 <GiWool />
                 <span className="capitalize">Fabric List</span>
+              </Link>
+              <Link
+                href="/inventoryItem"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor:
+                    pathname === "/inventoryItem" ? currentColor : "",
+                }}
+                className={
+                  pathname === "/inventoryItem" ? activeLink : normalLink
+                }
+              >
+                <MdOutlineInventory2 />
+                <span className="capitalize">Inventory Item</span>
+              </Link>
+              <Link
+                href="/customerOBSSummary"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor:
+                    pathname === "/customerOBSSummary" ? currentColor : "",
+                }}
+                className={
+                  pathname === "/customerOBSSummary" ? activeLink : normalLink
+                }
+              >
+                <MdOutlineSummarize />
+                <span className="capitalize">Order Booking Summery</span>
+              </Link>
+              <Link
+                href="/agingSummary"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor:
+                    pathname === "/agingSummary" ? currentColor : "",
+                }}
+                className={
+                  pathname === "/agingSummary" ? activeLink : normalLink
+                }
+              >
+                <MdOutlineSummarize />
+                <span className="capitalize">Payable Summery</span>
+              </Link>
+
+              {/*///////////////////// Settings /////////////////////*/}
+
+              <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
+                Settings
+              </p>
+
+              <Link
+                href="/myProfile"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor:
+                    pathname === "/myProfile" ? currentColor : "",
+                }}
+                className={pathname === "/myProfile" ? activeLink : normalLink}
+              >
+                <FaUser />
+                <span className="capitalize">My Profile</span>
               </Link>
             </div>
           </div>

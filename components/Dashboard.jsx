@@ -9,41 +9,6 @@ import Loader from "@/components/Loader";
 import Tooltip from "@mui/material/Tooltip";
 
 const Dashboard = ({ children }) => {
-  //hide Syncfusion License popup
-  useEffect(() => {
-    const licenseText =
-      "This application was built using a trial version of Syncfusion Essential Studio. To remove the license validation message permanently, a valid license key must be included.";
-    const hideLicenseMessage = () => {
-      const spanElements = document.getElementsByTagName("span");
-      for (let span of spanElements) {
-        if (span.innerText.includes(licenseText)) {
-          span.parentElement.style.display = "none";
-          break;
-        }
-      }
-      const licenseDivText =
-        "Claim your FREE account and get a key in less than a minute";
-      const divElements = document.getElementsByTagName("div");
-      for (let div of divElements) {
-        if (div.innerText.includes(licenseDivText)) {
-          div.parentElement.style.display = "none";
-          break;
-        }
-      }
-    };
-
-    hideLicenseMessage();
-
-    const observer = new MutationObserver(() => {
-      hideLicenseMessage();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
   const router = useRouter();
   const { data: session, status } = useSession();
   const {

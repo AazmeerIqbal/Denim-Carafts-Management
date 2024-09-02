@@ -40,8 +40,8 @@ const AddEventPopUp = ({ setAddEventPop, onEventAdded, setLoading }) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            CompanyId: session.user.companyId,
-            UserId: session.user.id,
+            CompanyId: session?.user?.companyId,
+            UserId: session?.user?.id,
             start: values.start,
             end: values.end,
             title: values.title,

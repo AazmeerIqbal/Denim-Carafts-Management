@@ -22,7 +22,7 @@ const ChangePasswordPopUp = ({ setChangePassword }) => {
       if (session?.user?.id) {
         try {
           const response = await fetch(
-            `/api/password/get-current-password?id=${session.user.id}`
+            `/api/password/get-current-password?id=${session?.user?.id}`
           );
           if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
@@ -59,7 +59,7 @@ const ChangePasswordPopUp = ({ setChangePassword }) => {
       const updatePassword = async () => {
         try {
           const response = await fetch(
-            `/api/password/update-password?id=${session.user.id}`,
+            `/api/password/update-password?id=${session?.user?.id}`,
             {
               method: "PUT", // Use PUT or PATCH instead of UPDATE
               headers: {
