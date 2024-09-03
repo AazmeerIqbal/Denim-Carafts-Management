@@ -138,14 +138,14 @@ const Sidebar = () => {
                 <span className="capitalize">Order Booking Summery</span>
               </Link>
               <Link
-                href="/agingSummary"
+                href="/payableSummary"
                 onClick={handleCloseSideBar}
                 style={{
                   backgroundColor:
-                    pathname === "/agingSummary" ? currentColor : "",
+                    pathname === "/payableSummary" ? currentColor : "",
                 }}
                 className={
-                  pathname === "/agingSummary" ? activeLink : normalLink
+                  pathname === "/payableSummary" ? activeLink : normalLink
                 }
               >
                 <MdOutlineSummarize />

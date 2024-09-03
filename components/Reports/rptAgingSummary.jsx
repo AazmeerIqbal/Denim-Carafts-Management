@@ -16,8 +16,6 @@ import "react-toastify/dist/ReactToastify.css";
 const AgingSummaryReport = ({ data, setListDisplay, details }) => {
   const { currentColor } = useStateContext();
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 50;
 
   // State to track the expanded rows
   const [expandedRow, setExpandedRow] = useState(null);
@@ -69,9 +67,9 @@ const AgingSummaryReport = ({ data, setListDisplay, details }) => {
     );
   };
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = filteredUsers.slice(indexOfFirstRow, indexOfLastRow);
+  // const indexOfLastRow = currentPage * rowsPerPage;
+  // const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  // const currentRows = filteredUsers.slice(indexOfFirstRow, indexOfLastRow);
 
   const [loading, setLoading] = useState(false);
   const [Details, setDetails] = useState([]);
@@ -201,7 +199,7 @@ const AgingSummaryReport = ({ data, setListDisplay, details }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentRows.map((item, index) => (
+                  {filteredUsers.map((item, index) => (
                     <React.Fragment key={item.AccountID || index}>
                       {/* Main row */}
                       <tr className="text-center text-sm">
@@ -254,7 +252,6 @@ const AgingSummaryReport = ({ data, setListDisplay, details }) => {
                               <table className="w-full border-collapse border border-gray-200">
                                 <thead className="sticky top-0 bg-gray-100">
                                   <tr className="text-center text-sm">
-                                    <th className="px-2 py-1">Account Title</th>
                                     <th className="px-2 py-1">Invoice Date</th>
                                     <th className="px-2 py-1">Invoice #</th>
                                     <th className="px-2 py-1">Voucher Id</th>
@@ -285,49 +282,48 @@ const AgingSummaryReport = ({ data, setListDisplay, details }) => {
                                     Details.map((detail, index) => (
                                       <tr
                                         key={index}
-                                        className="text-center text-sm bg-white"
+                                        className="text-center text-sm bg-white border-2 border-black"
                                       >
-                                        <td className="px-2 py-1 border border-gray-200">
-                                          {detail.AccountID}
-                                        </td>
                                         <td className="px-2 py-1 border border-gray-200 text-right">
-                                          {detail.AccountTitle}
+                                          {dayjs(detail.TransactionDate).format(
+                                            "DD-MMM-YY"
+                                          )}
                                         </td>
                                         <td className="px-2 py-1 border border-gray-200 text-left">
                                           {detail.InvoiceNo}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
                                           {detail.VoucherID}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.OpeningBalance}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.OBCredit.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.InvoiceAmount}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.InvoiceAmount.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.OBCredit}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.OBCredit.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.Credit}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.Credit.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
                                           {detail.Dayss}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.Between0To30}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.Between0To30.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.Between31To60}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.Between31To60.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.Between61To90}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.Between61To90.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.Above90}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.Above90.toLocaleString()}
                                         </td>
-                                        <td className="px-2 py-1 border border-gray-200 text-left">
-                                          {detail.Total1}
+                                        <td className="px-2 py-1 border border-gray-200 text-right">
+                                          {detail.Total1.toLocaleString()}
                                         </td>
                                       </tr>
                                     ))
@@ -341,6 +337,53 @@ const AgingSummaryReport = ({ data, setListDisplay, details }) => {
                     </React.Fragment>
                   ))}
                 </tbody>
+                {/* Footer Row */}
+                <tfoot>
+                  <tr className="text-center font-bold bg-gray-100 text-sm">
+                    <td className="px-2 py-1 border border-gray-200"></td>
+                    <td className="px-2 py-1 border border-gray-200"></td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.OpeningBalance, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.TotalCredit, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.TotalDebit, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.NetBalance, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.Between0To30, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.Between31To60, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.Between61To90, 0)
+                        .toLocaleString()}
+                    </td>
+                    <td className="px-2 py-1 border border-gray-200 text-right">
+                      {filteredUsers
+                        .reduce((sum, row) => sum + row.Above90, 0)
+                        .toLocaleString()}
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           )}
