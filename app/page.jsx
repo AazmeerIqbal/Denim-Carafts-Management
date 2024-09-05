@@ -13,41 +13,50 @@ const Page = () => {
       <div className="px-6 py-10">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {/* Dashboard Cards */}
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] p-5 transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/calendar">
-              <p className="dark:text-white text-black text-2xl w-3/4">
-                Schedule your Important Tasks
-              </p>
+              <div className="p-5">
+                <p className="dark:text-white text-black text-2xl w-3/4">
+                  Schedule your Important Tasks
+                </p>
+                <FaCalendarDays className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
+              </div>
             </Link>
-            <FaCalendarDays className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
           </div>
 
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] p-5 transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/fabricList">
-              <p className="dark:text-white text-black text-2xl w-3/4">
-                Fabric Stock Position
-              </p>
+              <div className="p-5">
+                <p className="dark:text-white text-black text-2xl w-3/4">
+                  Fabric Stock Position
+                </p>
+                <GiWool className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
+              </div>
             </Link>
-
-            <GiWool className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
           </div>
 
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] p-5 transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/users">
-              <p className="dark:text-white text-black text-2xl w-3/4">Users</p>
-            </Link>
+              <div className="p-5">
+                <p className="dark:text-white text-black text-2xl w-3/4">
+                  Users
+                </p>
 
-            <FaUsers className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
+                <FaUsers className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
+              </div>
+            </Link>
           </div>
 
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] p-5 transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/myProfile">
-              <p className="dark:text-white text-black text-2xl w-3/4">
-                My Account
-              </p>
-            </Link>
+              <div className="p-5">
+                <p className="dark:text-white text-black text-2xl w-3/4">
+                  My Account
+                </p>
 
-            <MdManageAccounts className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
+                <MdManageAccounts className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
+              </div>
+            </Link>
           </div>
         </div>
 

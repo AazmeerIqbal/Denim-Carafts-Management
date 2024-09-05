@@ -9,6 +9,54 @@ import Loader from "@/components/Loader";
 import Tooltip from "@mui/material/Tooltip";
 
 const Dashboard = ({ children }) => {
+  useEffect(() => {
+    const licenseText =
+      "This application was built using a trial version of Syncfusion Essential Studio. To remove the license validation message permanently, a valid license key must be included.";
+    const hideLicenseMessage = () => {
+      // Get all span elements in the document
+      const spanElements = document.getElementsByTagName("span");
+
+      for (let span of spanElements) {
+        // Check if the span contains the specific license text
+        if (span.innerText.includes(licenseText)) {
+          // Hide the parent div of the span
+          span.parentElement.style.display = "none";
+          break; // Stop the loop once the element is found and hidden
+        }
+      }
+
+      const licenseDivText =
+        "Claim your FREE account and get a key in less than a minute";
+
+      const divElements = document.getElementsByTagName("div");
+
+      for (let div of divElements) {
+        // Check if the div contains the specific license text
+        if (div.innerText.includes(licenseDivText)) {
+          // Hide the parent div of the div
+          div.parentElement.style.display = "none";
+          break; // Stop the loop once the element is found and hidden
+        }
+      }
+    };
+
+    // Initial check
+    hideLicenseMessage();
+
+    // Create a MutationObserver to detect changes in the DOM
+    const observer = new MutationObserver(() => {
+      hideLicenseMessage();
+    });
+
+    // Observe changes in the body of the document
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Cleanup observer on component unmount
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   const router = useRouter();
   const { data: session, status } = useSession();
   const {

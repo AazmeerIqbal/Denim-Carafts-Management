@@ -30,7 +30,7 @@ export const GET = async (req, { params }) => {
       .input("InvoiceType", sql.VarChar(100), invoiceType)
       .input("DateFrom", sql.DateTime, dateFrom)
       .input("DateTo", sql.DateTime, dateTo)
-      .execute("rptAgingPayableSummaryChart");
+      .execute("rptAgingPayableImportSummaryChart");
 
     await closeConnection();
     return new Response(JSON.stringify(result.recordset), { status: 200 });

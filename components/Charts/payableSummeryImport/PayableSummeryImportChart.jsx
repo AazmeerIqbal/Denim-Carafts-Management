@@ -2,10 +2,14 @@ import React from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
 
+import { useStateContext } from "@/components/contexts/ContextProvider";
+
 // Register the necessary components for the Doughnut chart
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 const PayableSummeryImportChart = ({ data }) => {
+  const { currentMode } = useStateContext();
+
   const chartData = {
     labels: ["0 to 30", "31 to 60", "61 to 90", "Above 90"],
     datasets: [
@@ -18,7 +22,7 @@ const PayableSummeryImportChart = ({ data }) => {
           data[0].Above90,
         ],
         backgroundColor: ["#FF5733", "#33FFBD", "#FFC300", "#8E44AD"],
-        borderColor: ["#FFFFFF"], // Adding white borders for clarity
+        borderColor: [currentMode === "Dark" ? "#29314f" : "#FFFFFF"], // Adding white borders for clarity
         borderWidth: 2,
       },
     ],

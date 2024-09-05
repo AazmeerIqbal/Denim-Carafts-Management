@@ -1,48 +1,67 @@
 import React from "react";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from "chart.js";
+import {
+  ChartComponent,
+  SeriesCollectionDirective,
+  SeriesDirective,
+  Inject,
+  LineSeries,
+  Legend,
+  Tooltip,
+  DataLabel,
+  Category,
+} from "@syncfusion/ej2-react-charts";
+import { registerLicense } from "@syncfusion/ej2-base";
 
-// Register the necessary components for the Doughnut chart
-ChartJS.register(Title, Tooltip, Legend, ArcElement);
+import { useStateContext } from "@/components/contexts/ContextProvider";
+
+// Register the Syncfusion license key
+registerLicense(process.env.REACT_APP_SYNCFUSION_LICENSE_KEY);
 
 const PayableSummeryCharLoad = ({ data }) => {
-  const chartData = {
-    labels: ["0 to 30", "31 to 60", "61 to 90", "Above 90"],
-    datasets: [
-      {
-        label: "Amount",
-        data: [
-          data[0].Between0To30,
-          data[0].Between31To60,
-          data[0].Between61To90,
-          data[0].Above90,
-        ],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50"],
-        borderColor: ["#FFFFFF"], // Adding white borders for clarity
-        borderWidth: 2,
-      },
-    ],
-  };
+  const { currentMode } = useStateContext();
 
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "bottom", // Positioning the legend
-      },
-      tooltip: {
-        callbacks: {
-          label: (tooltipItem) =>
-            `${tooltipItem.label}: ${tooltipItem.raw.toLocaleString()}`,
-        },
-      },
-    },
-  };
+  const chartData = [
+    { range: "0 to 30", amount: data[0].Between0To30 },
+    { range: "31 to 60", amount: data[0].Between31To60 },
+    { range: "61 to 90", amount: data[0].Between61To90 },
+    { range: "Above 90", amount: data[0].Above90 },
+  ];
 
   return (
-    <div className="w-full h-full mx-auto">
-      <Doughnut data={chartData} options={options} />
-    </div>
+    <ChartComponent
+      // title="Payable Summary Chart"
+      primaryXAxis={{ valueType: "Category" }}
+      // primaryYAxis={{ title: "Amount" }}
+      tooltip={{ enable: true }}
+      legendSettings={{
+        visible: true,
+        position: "Bottom",
+        background: "white",
+      }}
+      background={currentMode === "Dark" ? "#29314f" : "#fff"}
+      chartArea={{ border: { width: 0 } }}
+    >
+      {/* Inject LineSeries and other required services */}
+      <Inject services={[LineSeries, Legend, Tooltip, DataLabel, Category]} />
+      <SeriesCollectionDirective>
+        <SeriesDirective
+          dataSource={chartData}
+          xName="range"
+          yName="amount"
+          type="Line" // Set the chart type to 'Line'
+          marker={{
+            visible: true,
+            width: 10,
+            height: 10,
+            dataLabel: {
+              visible: true,
+              position: "Top",
+              font: { fontWeight: "600" },
+            },
+          }}
+        />
+      </SeriesCollectionDirective>
+    </ChartComponent>
   );
 };
 
