@@ -36,8 +36,7 @@ const PayableSummeryImportChart = ({ data }) => {
       },
       tooltip: {
         callbacks: {
-          label: (tooltipItem) =>
-            `${tooltipItem.label}: ${tooltipItem.raw.toLocaleString()}`,
+          label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw}`,
         },
       },
     },

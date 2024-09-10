@@ -60,7 +60,6 @@ const MyProfile = () => {
     fetchRoles();
   }, [session?.user?.id]);
 
-  console.log(session?.user);
   useEffect(() => {
     if (status === "authenticated") {
       setValues({

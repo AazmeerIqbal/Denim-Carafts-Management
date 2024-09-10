@@ -17,7 +17,7 @@ const Page = () => {
             <Link href="/calendar">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
-                  Schedule your Important Tasks
+                  Calendar
                 </p>
                 <FaCalendarDays className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
               </div>
@@ -28,7 +28,7 @@ const Page = () => {
             <Link href="/fabricList">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
-                  Fabric Stock Position
+                  Fabric
                 </p>
                 <GiWool className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
               </div>
@@ -51,7 +51,7 @@ const Page = () => {
             <Link href="/myProfile">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
-                  My Account
+                  Account
                 </p>
 
                 <MdManageAccounts className="group-hover:opacity-100 absolute right-[10%] top-[50%] translate-y-[-50%] opacity-20 transition group-hover:scale-110 duration-300 text-4xl dark:text-white text-black" />
