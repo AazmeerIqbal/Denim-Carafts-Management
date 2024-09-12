@@ -25,6 +25,7 @@ const PayableSummeryCharLoad = () => {
 
       const data = await response.json();
       setChartData(data);
+      console.log(ChartData);
     } catch (error) {
       console.error("Error fetching chart data:", error);
     }

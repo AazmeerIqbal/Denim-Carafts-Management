@@ -1,68 +1,67 @@
 import React from "react";
 import {
-  ChartComponent,
-  SeriesCollectionDirective,
-  SeriesDirective,
-  Inject,
-  LineSeries,
-  Legend,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  DataLabel,
-  Category,
-} from "@syncfusion/ej2-react-charts";
-import { registerLicense } from "@syncfusion/ej2-base";
-
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { useStateContext } from "@/components/contexts/ContextProvider";
 
-// Register the Syncfusion license key
-registerLicense(process.env.REACT_APP_SYNCFUSION_LICENSE_KEY);
+// Custom formatter function to format numbers with commas and shorten large values
+const formatYAxis = (value) => {
+  if (value >= 1000000000) {
+    return `${(value / 1000000000).toFixed(1)}B`; // Billion
+  } else if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(1)}M`; // Million
+  } else if (value >= 1000) {
+    return `${(value / 1000).toFixed(1)}K`; // Thousand
+  }
+  return value.toLocaleString(); // Comma-separating values smaller than 1000
+};
 
-const PayableSummeryCharLoad = ({ data }) => {
-  const { currentMode } = useStateContext();
+// Format tooltips to show comma-separated amounts
+const formatTooltip = (value) => {
+  return value.toLocaleString(); // Adds commas in the tooltip
+};
 
-  const chartData = [
-    { range: "0 to 30", amount: data[0].Between0To30 },
-    { range: "31 to 60", amount: data[0].Between31To60 },
-    { range: "61 to 90", amount: data[0].Between61To90 },
-    { range: "Above 90", amount: data[0].Above90 },
+const PayableSummeryImportChart = ({ data }) => {
+  const { currentMode, currentColor } = useStateContext();
+
+  // Format the data for recharts
+  const formattedData = [
+    { name: "0 to 30", amount: data[0].Between0To30 },
+    { name: "31 to 60", amount: data[0].Between31To60 },
+    { name: "61 to 90", amount: data[0].Between61To90 },
+    { name: "Above 90", amount: data[0].Above90 },
   ];
 
   return (
-    <ChartComponent
-      // title="Payable Summary Chart"
-      primaryXAxis={{ valueType: "Category" }}
-      // primaryYAxis={{ title: "Amount" }}
-      tooltip={{ enable: true }}
-      legendSettings={{
-        visible: true,
-        position: "Bottom",
-        background: "white",
-      }}
-      background={currentMode === "Dark" ? "#29314f" : "#fff"}
-      chartArea={{ border: { width: 0 } }}
-    >
-      {/* Inject LineSeries and other required services */}
-      <Inject services={[LineSeries, Legend, Tooltip, DataLabel, Category]} />
-      <SeriesCollectionDirective>
-        <SeriesDirective
-          dataSource={chartData}
-          xName="range"
-          yName="amount"
-          type="Line" // Set the chart type to 'Line'
-          marker={{
-            visible: true,
-            width: 10,
-            height: 10,
-            dataLabel: {
-              visible: true,
-              position: "Top",
-              font: { fontWeight: "600" },
-            },
-          }}
-        />
-      </SeriesCollectionDirective>
-    </ChartComponent>
+    <div className="w-full h-full mx-auto">
+      <div className="relative h-[300px] md:h-[400px]">
+        <ResponsiveContainer width="95%" height="100%">
+          <LineChart data={formattedData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis tickFormatter={formatYAxis} />{" "}
+            {/* Format the Y-axis with commas */}
+            <Tooltip formatter={formatTooltip} />{" "}
+            {/* Comma-separate values in tooltips */}
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="amount"
+              stroke={currentColor}
+              activeDot={{ r: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 };
 
-export default PayableSummeryCharLoad;
+export default PayableSummeryImportChart;

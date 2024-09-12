@@ -10,10 +10,10 @@ import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImp
 const Page = () => {
   return (
     <>
-      <div className="px-6 py-10">
+      <div className="px-6 md:py-10 py-20">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {/* Dashboard Cards */}
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)] transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721] transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/calendar">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
@@ -24,7 +24,7 @@ const Page = () => {
             </Link>
           </div>
 
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/fabricList">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
@@ -35,7 +35,7 @@ const Page = () => {
             </Link>
           </div>
 
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/users">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
@@ -47,7 +47,7 @@ const Page = () => {
             </Link>
           </div>
 
-          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
+          <div className="group w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 cursor-pointer hover:translate-y-[3px] hover:shadow-[0_-8px_0px_0px_rgb(244,67,54)] drop-shadow-2xl">
             <Link href="/myProfile">
               <div className="p-5">
                 <p className="dark:text-white text-black text-2xl w-3/4">
@@ -62,7 +62,7 @@ const Page = () => {
 
         {/* Chart Component */}
         <div className="mt-10 flex justify-between md:flex-row flex-col">
-          <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 drop-shadow-2xl">
+          <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 drop-shadow-2xl">
             <h1 className="dark:text-white text-black text-2xl my-5 text-center">
               Local Payable Summery
             </h1>
@@ -70,7 +70,7 @@ const Page = () => {
               <PayableSummeryCharLoad />
             </div>
           </div>
-          <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[rgb(41,49,79)]  transition relative duration-300 drop-shadow-2xl">
+          <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 drop-shadow-2xl">
             <h1 className="dark:text-white text-black text-2xl my-5 text-center">
               Import Payable Summery
             </h1>

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import PayableSummeryImportChart from "./PayableSummeryImportChart";
 
 const PayableSummeryImportChartLoad = () => {
-  const [ChartData, setChartData] = useState([]);
+  const [ChartDataImport, setChartDataImport] = useState([]);
   const { data: session } = useSession();
 
   const companyId = session?.user?.companyId.toString();
@@ -24,7 +24,8 @@ const PayableSummeryImportChartLoad = () => {
       }
 
       const data = await response.json();
-      setChartData(data);
+      setChartDataImport(data);
+      console.log(ChartDataImport);
     } catch (error) {
       console.error("Error fetching chart data:", error);
     }
@@ -38,8 +39,8 @@ const PayableSummeryImportChartLoad = () => {
 
   return (
     <div>
-      {ChartData.length > 0 ? (
-        <PayableSummeryImportChart data={ChartData} />
+      {ChartDataImport.length > 0 ? (
+        <PayableSummeryImportChart data={ChartDataImport} />
       ) : null}
     </div>
   );
