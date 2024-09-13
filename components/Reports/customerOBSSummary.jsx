@@ -5,7 +5,7 @@ import { ImCross } from "react-icons/im";
 import ExportService from "@/utils/ExportService";
 import Pagination from "@/components/Pagination";
 
-const CustomerOBSSummary = ({ data, setListDisplay }) => {
+const CustomerOBSSummary = ({ data, setListDisplay, statusOrValue }) => {
   const { currentColor } = useStateContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +82,7 @@ const CustomerOBSSummary = ({ data, setListDisplay }) => {
       >
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold inline-block">
-            Customer OBS Summary
+            Customer OBS Summary {statusOrValue == "0" ? "Status" : "Value"}
           </h1>
           <div className="flex space-x-2">
             <button

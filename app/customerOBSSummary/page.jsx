@@ -32,6 +32,7 @@ const Page = () => {
     orderType: "3",
     customer: "0",
     shippedStatus: "1",
+    statusOrValue: "0",
     startDate: sixMonthsBack,
     endDate: sixMonthsForward,
   });
@@ -84,22 +85,41 @@ const Page = () => {
 
     try {
       const companyId = session?.user?.companyId;
-      const response = await fetch(`/api/OBS/${companyId}/getReport`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      });
+      if (dataToSend.statusOrValue == "0") {
+        const response = await fetch(`/api/OBS/${companyId}/getReport`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataToSend),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setReportData(data);
+        setLoading(false);
+        setListDisplay(true);
+      } else {
+        const response = await fetch(`/api/OBS/${companyId}/getReportValue`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataToSend),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setReportData(data);
+        setLoading(false);
+        setListDisplay(true);
       }
-
-      const data = await response.json();
-      setReportData(data);
-      setLoading(false);
-      setListDisplay(true);
     } catch (error) {
       console.error("Failed to fetch company list:", error);
       setLoading(false);
@@ -167,10 +187,25 @@ const Page = () => {
                 onChange={handleChange}
                 className="mt-1 p-2 border border-gray-300 rounded-lg bg-white text-gray-700"
               >
-                <option value="1">Shipment Due</option>
-                <option value="0">All</option>
-                <option value="2">Shipped</option>
-                <option value="3">Both</option>
+                <option value="0">Over All</option>
+                <option value="1">Shipped</option>
+                <option value="2">Un-Ship</option>
+              </select>
+            </div>
+
+            {/* Status/Value */}
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-semibold">
+                Status/Value:
+              </label>
+              <select
+                name="statusOrValue"
+                value={formData.statusOrValue}
+                onChange={handleChange}
+                className="mt-1 p-2 border border-gray-300 rounded-lg bg-white text-gray-700"
+              >
+                <option value="0">Status</option>
+                <option value="1">Value</option>
               </select>
             </div>
 
@@ -242,7 +277,11 @@ const Page = () => {
         </div>
       </div>
       {listDisplay && (
-        <CustomerOBSSummary data={reportData} setListDisplay={setListDisplay} />
+        <CustomerOBSSummary
+          data={reportData}
+          setListDisplay={setListDisplay}
+          statusOrValue={formData.statusOrValue}
+        />
       )}
     </>
   );

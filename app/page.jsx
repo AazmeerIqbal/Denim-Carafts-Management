@@ -6,6 +6,7 @@ import { MdManageAccounts } from "react-icons/md";
 import Link from "next/link";
 import PayableSummeryCharLoad from "@/components/Charts/payableSummery/PayableSummeryCharLoad";
 import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImport/PayableSummeryImportChartLoad";
+import { GoArrowUpRight } from "react-icons/go";
 
 const Page = () => {
   return (
@@ -61,23 +62,33 @@ const Page = () => {
         </div>
 
         {/* Chart Component */}
-        <div className="mt-10 flex justify-between md:flex-row flex-col">
-          <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 drop-shadow-2xl">
-            <h1 className="dark:text-white text-black text-2xl my-5 text-center">
-              Local Payable Summery
+        <div className="mt-10 flex justify-between mb-6">
+          <div className="group md:mb-0  w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 drop-shadow-2xl h-[80%]">
+            <h1 className="dark:text-white text-black text-2xl my-5 ml-4">
+              Payable Summery
             </h1>
+            <Link href="/payableSummary">
+              <div className="absolute top-5 right-3 text-xl dark:bg-white dark:text-black bg-[#3f3d3d] text-white p-1 cursor cursor-pointer rounded-md">
+                <GoArrowUpRight />
+              </div>
+            </Link>
             <div className="mx-auto">
               <PayableSummeryCharLoad />
             </div>
           </div>
-          <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 drop-shadow-2xl">
-            <h1 className="dark:text-white text-black text-2xl my-5 text-center">
+          {/* <div className="group md:mb-0 mb-6 md:w-[48%] w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-[#141721]  transition relative duration-300 drop-shadow-2xl">
+            <h1 className="dark:text-white text-black text-2xl my-5 ml-4">
               Import Payable Summery
             </h1>
+            <Link href="/payableSummary">
+              <div className="absolute top-5 right-3 text-xl dark:bg-white dark:text-black bg-[#3f3d3d] text-white p-1 cursor cursor-pointer rounded-md">
+                <GoArrowUpRight />
+              </div>
+            </Link>
             <div className="mx-auto">
               <PayableSummeryImportChartLoad />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

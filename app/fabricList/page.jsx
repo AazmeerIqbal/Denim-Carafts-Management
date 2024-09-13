@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
 import FabricReport from "@/components/Reports/FabricList";
 import Loader from "@/components/Loader";
+import { useStateContext } from "@/components/contexts/ContextProvider";
 
 // Notification Toaster
 import { ToastContainer, toast } from "react-toastify";
@@ -12,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const FabricList = () => {
   const { data: session } = useSession();
+  const { currentColor } = useStateContext();
   const [listDisplay, setListDisplay] = useState(false);
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false); // New state to handle loader visibility
@@ -204,9 +206,15 @@ const FabricList = () => {
               />
             </div>
 
+            {/* Get Report Button */}
             <div className="flex items-end">
               <button
-                className="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                type="button"
+                style={{
+                  backgroundColor: currentColor,
+                  borderRadius: "10px",
+                }}
+                className="text-sm text-white p-3 hover:drop-shadow-xl w-full cursor-pointer"
                 onClick={handleGetReport}
               >
                 Get Report

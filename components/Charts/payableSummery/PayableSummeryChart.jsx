@@ -28,15 +28,27 @@ const formatTooltip = (value) => {
   return value.toLocaleString(); // Adds commas in the tooltip
 };
 
-const PayableSummeryImportChart = ({ data }) => {
+const PayableSummeryImportChart = ({ data, dataImport }) => {
   const { currentMode, currentColor } = useStateContext();
 
   // Format the data for recharts
   const formattedData = [
-    { name: "0 to 30", amount: data[0].Between0To30 },
-    { name: "31 to 60", amount: data[0].Between31To60 },
-    { name: "61 to 90", amount: data[0].Between61To90 },
-    { name: "Above 90", amount: data[0].Above90 },
+    {
+      name: "0 to 30",
+      local: data[0].Between0To30,
+      import: dataImport[0].Between0To30,
+    },
+    {
+      name: "31 to 60",
+      local: data[0].Between31To60,
+      import: dataImport[0].Between31To60,
+    },
+    {
+      name: "61 to 90",
+      local: data[0].Between61To90,
+      import: dataImport[0].Between61To90,
+    },
+    { name: "Above 90", local: data[0].Above90, import: dataImport[0].Above90 },
   ];
 
   return (
@@ -51,11 +63,21 @@ const PayableSummeryImportChart = ({ data }) => {
             <Tooltip formatter={formatTooltip} />{" "}
             {/* Comma-separate values in tooltips */}
             <Legend />
+            {/* Local Data */}
             <Line
               type="monotone"
-              dataKey="amount"
-              stroke={currentColor}
+              dataKey="local"
+              stroke={currentColor} // Color for local data
               activeDot={{ r: 2 }}
+              name="Local" // Legend label for local data
+            />
+            {/* Import Data */}
+            <Line
+              type="monotone"
+              dataKey="import"
+              stroke="#ff0000" // Different color for import data
+              activeDot={{ r: 2 }}
+              name="Import" // Legend label for import data
             />
           </LineChart>
         </ResponsiveContainer>
