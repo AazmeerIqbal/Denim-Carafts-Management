@@ -266,9 +266,9 @@ const AgingSummaryReport = ({ data, setListDisplay, details }) => {
                                     <th className="px-2 py-1">Actual Days</th>
                                     <th className="px-2 py-1">0 To 30</th>
                                     <th className="px-2 py-1">31 To 60</th>
-                                    <th className="px-2 py-1">31 To 60</th>
-                                    <th className="px-2 py-1">Above-90</th>
-                                    <th className="px-2 py-1">Total1</th>
+                                    <th className="px-2 py-1">61 To 90</th>
+                                    <th className="px-2 py-1">Above 90</th>
+                                    <th className="px-2 py-1">Total</th>
                                   </tr>
                                 </thead>
                                 <tbody>

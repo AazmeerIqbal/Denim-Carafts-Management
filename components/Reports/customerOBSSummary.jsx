@@ -70,19 +70,18 @@ const CustomerOBSSummary = ({ data, setListDisplay, statusOrValue }) => {
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = dataWithRowSums.slice(indexOfFirstRow, indexOfLastRow);
-  const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-150">
       <div
-        className="w-[95%] h-[95vh] bg-white rounded-lg px-4 py-5 shadow-md overflow-hidden flex flex-col"
+        className="w-[95%] h-[95vh] bg-white rounded-lg px-4 pt-5 pb-10 shadow-md overflow-hidden flex flex-col "
         style={{
           borderTop: `10px solid ${currentColor}`,
         }}
       >
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold inline-block">
-            Customer OBS Summary {statusOrValue == "0" ? "Status" : "Value"}
+            OBS - Order {statusOrValue == "0" ? "Quantity" : "Value In PKR"}
           </h1>
           <div className="flex space-x-2">
             <button
@@ -127,7 +126,7 @@ const CustomerOBSSummary = ({ data, setListDisplay, statusOrValue }) => {
             <table className="w-full border-collapse border border-gray-200">
               <thead className="sticky top-0 bg-gray-100">
                 <tr className="text-center text-sm">
-                  <th className="px-2 py-1 ">Customer Name</th>
+                  <th className="px-2 py-1 w-[10%]">Customer Name</th>
                   {monthNames.map((month, index) => (
                     <th key={index} className="px-2 py-1">
                       {month}
@@ -139,7 +138,7 @@ const CustomerOBSSummary = ({ data, setListDisplay, statusOrValue }) => {
               <tbody>
                 {currentRows.map((item, index) => (
                   <tr key={index} className="text-center text-sm">
-                    <td className="px-2 py-1 border border-gray-200">
+                    <td className="px-2 py-1 border border-gray-200 w-[10%]">
                       {item.CustomerName}
                     </td>
                     {monthNames.map((month) => (
@@ -172,21 +171,6 @@ const CustomerOBSSummary = ({ data, setListDisplay, statusOrValue }) => {
               </tbody>
             </table>
           </div>
-        )}
-
-        {filteredData.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            handleFirstPage={() => setCurrentPage(1)}
-            handlePrevPage={() =>
-              setCurrentPage((prev) => Math.max(prev - 1, 1))
-            }
-            handleNextPage={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            handleLastPage={() => setCurrentPage(totalPages)}
-          />
         )}
       </div>
     </div>

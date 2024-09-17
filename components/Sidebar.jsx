@@ -41,7 +41,11 @@ const Sidebar = () => {
               onClick={handleCloseSideBar}
               className="items-center gap-3 ml-3 mt-4 flex text-2xl font-extrabold tracking-wider dark:text-white text-slate-900"
             >
-              <img src="/assets/DC_logo.jpg" alt="Logo" className="h-10 w-10" />
+              <img
+                src="/assets/DC_logo_noBg.png"
+                alt="Logo"
+                className="h-10 w-10"
+              />
               <span>{session?.user?.companyName}</span>
             </Link>
             {/* <TooltipComponent content="Menu" position="BottomCenter"> */}
@@ -57,6 +61,7 @@ const Sidebar = () => {
           </div>
           <div className="mt-10">
             <div>
+              {/* Dashboard */}
               <Link
                 href="/"
                 onClick={handleCloseSideBar}
@@ -68,6 +73,8 @@ const Sidebar = () => {
                 <MdDashboard />
                 <span className="capitalize">Dashboard</span>
               </Link>
+
+              {/* Users */}
               <Link
                 href="/users"
                 onClick={handleCloseSideBar}
@@ -79,6 +86,8 @@ const Sidebar = () => {
                 <FaUsers />
                 <span className="capitalize">Users</span>
               </Link>
+
+              {/* Calendar */}
               <Link
                 href="/calendar"
                 onClick={handleCloseSideBar}
@@ -97,6 +106,7 @@ const Sidebar = () => {
                 Reports
               </p>
 
+              {/* Fabric List */}
               <Link
                 href="/fabricList"
                 onClick={handleCloseSideBar}
@@ -109,6 +119,8 @@ const Sidebar = () => {
                 <GiWool />
                 <span className="capitalize">Fabric List</span>
               </Link>
+
+              {/* Inventory Item */}
               <Link
                 href="/inventoryItem"
                 onClick={handleCloseSideBar}
@@ -123,6 +135,8 @@ const Sidebar = () => {
                 <MdOutlineInventory2 />
                 <span className="capitalize">Inventory Item</span>
               </Link>
+
+              {/* Customer OBS Summary */}
               <Link
                 href="/customerOBSSummary"
                 onClick={handleCloseSideBar}
@@ -137,6 +151,8 @@ const Sidebar = () => {
                 <MdOutlineSummarize />
                 <span className="capitalize">Order Booking Summery</span>
               </Link>
+
+              {/* Payable Summary */}
               <Link
                 href="/payableSummary"
                 onClick={handleCloseSideBar}
@@ -150,6 +166,19 @@ const Sidebar = () => {
               >
                 <MdOutlineSummarize />
                 <span className="capitalize">Payable Summery</span>
+              </Link>
+
+              {/* Job Cost */}
+              <Link
+                href="/jobCost"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor: pathname === "/jobCost" ? currentColor : "",
+                }}
+                className={pathname === "/jobCost" ? activeLink : normalLink}
+              >
+                <MdOutlineSummarize />
+                <span className="capitalize">Job Cost</span>
               </Link>
 
               {/*///////////////////// Settings /////////////////////*/}

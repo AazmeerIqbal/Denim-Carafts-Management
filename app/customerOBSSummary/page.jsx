@@ -196,7 +196,7 @@ const Page = () => {
             {/* Status/Value */}
             <div className="flex flex-col">
               <label className="text-gray-700 font-semibold">
-                Status/Value:
+                Quantity/Value:
               </label>
               <select
                 name="statusOrValue"
@@ -204,8 +204,8 @@ const Page = () => {
                 onChange={handleChange}
                 className="mt-1 p-2 border border-gray-300 rounded-lg bg-white text-gray-700"
               >
-                <option value="0">Status</option>
-                <option value="1">Value</option>
+                <option value="0">Order Quantity</option>
+                <option value="1">Order Value In PKR</option>
               </select>
             </div>
 

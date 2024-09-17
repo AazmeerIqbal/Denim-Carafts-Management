@@ -85,6 +85,7 @@ const page = () => {
     // Prepare the payload with formatted date values
     const payload = {
       companyId: formData.companyId || null,
+      supplierID: formData.Supplier || null,
       invoiceType: formData.LIT || null,
       gstNonGst: formData.GstType || null,
       currencyCode: formData.Currency || null,
@@ -93,6 +94,7 @@ const page = () => {
     };
 
     try {
+      console.log(payload);
       const response = await fetch(
         `/api/agingSummary/${formData.companyId}/getReport`,
         {
@@ -178,7 +180,7 @@ const page = () => {
                 onChange={handleChange}
                 className="mt-1 p-2 border border-gray-300 rounded-lg bg-white text-gray-700"
               >
-                <option value="0">Select Supplier</option>
+                <option value="0">All Supplier</option>
                 {suppliers.map((supplier) => (
                   <option key={supplier.SupplierID} value={supplier.SupplierID}>
                     {supplier.SupplierName}

@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
     <html lang="en">
       <head>
         <title>Denim Crafts</title>
-        <link rel="icon" type="image/x-icon" href="/assets/DC_logo.jpg" />
+        <link rel="icon" type="image/x-icon" href="/assets/DC_logo_noBg.png" />
       </head>
       <body className={openSans.className}>
         <Provider>
