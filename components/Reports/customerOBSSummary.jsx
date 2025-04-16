@@ -3,7 +3,6 @@ import { useStateContext } from "@/components/contexts/ContextProvider";
 import { IoSearch } from "react-icons/io5";
 import { ImCross } from "react-icons/im";
 import ExportService from "@/utils/ExportService";
-import Pagination from "@/components/Pagination";
 
 const CustomerOBSSummary = ({ data, setListDisplay, statusOrValue }) => {
   const { currentColor } = useStateContext();

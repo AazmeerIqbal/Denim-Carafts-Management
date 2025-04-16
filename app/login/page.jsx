@@ -55,7 +55,11 @@ const Login = () => {
       <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
           <div>
-            <img src="/assets/DC.jpg" className="w-32 mx-auto" alt="DC Logo" />
+            {/* <img
+              src="/assets/AHDenimLogo.png"
+              className="w-32 mx-auto"
+              alt="Logo"
+            /> */}
           </div>
           <div className="mt-8 flex flex-col items-center">
             <h1 className="text-2xl xl:text-3xl font-extrabold">Sign In</h1>

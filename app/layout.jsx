@@ -2,11 +2,12 @@
 import React from "react";
 import "@/styles/globals.css";
 import { Open_Sans } from "next/font/google";
-import Provider from "@/components/Provider";
 import { ContextProvider } from "@/components/contexts/ContextProvider";
 import Dashboard from "@/components/Dashboard";
 import { usePathname } from "next/navigation";
 import Login from "./login/page";
+import Provider from "@/components/Provider";
+import DynamicHead from "@/components/DynamicHead";
 
 const openSans = Open_Sans({
   weight: "400",
@@ -18,12 +19,9 @@ const Layout = ({ children }) => {
 
   return (
     <html lang="en">
-      <head>
-        <title>Denim Crafts</title>
-        <link rel="icon" type="image/x-icon" href="/assets/DC_logo_noBg.png" />
-      </head>
       <body className={openSans.className}>
         <Provider>
+          <DynamicHead /> {/* ✅ Now it can safely use useSession */}
           <ContextProvider>
             <div className="main">
               <main className="app">

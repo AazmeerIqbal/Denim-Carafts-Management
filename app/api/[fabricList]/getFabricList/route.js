@@ -18,34 +18,37 @@ export const GET = async (req) => {
     const companyId = searchParams.get("companyId") || null;
 
     // console.log(`
-    //   EXEC Fabrice_Stock_Position 
-    //   @ItemId = ${itemId !== null ? `'${itemId}'` : null}, 
-    //   @CompanyId = '${companyId}', 
-    //   @VendorId = ${vendorId !== null ? `'${vendorId}'` : null}, 
-    //   @ShowHide = ${showHide !== null ? showHide : null}, 
-    //   @GroupItemId = ${groupItemId !== null ? groupItemId : null}, 
-    //   @BranchId = ${branchId !== null ? branchId : null}, 
-    //   @DateFrom = ${dateFrom !== null ? `'${dateFrom}'` : null}, 
-    //   @DateTo = ${dateTo !== null ? `'${dateTo}'` : null}, 
-    //   @GreaterThan = ${greaterThan == "null" ? null: `'${greaterThan}'` }, 
+    //   EXEC Fabrice_Stock_Position
+    //   @ItemId = ${itemId !== null ? `'${itemId}'` : null},
+    //   @CompanyId = '${companyId}',
+    //   @VendorId = ${vendorId !== null ? `'${vendorId}'` : null},
+    //   @ShowHide = ${showHide !== null ? showHide : null},
+    //   @GroupItemId = ${groupItemId !== null ? groupItemId : null},
+    //   @BranchId = ${branchId !== null ? branchId : null},
+    //   @DateFrom = ${dateFrom !== null ? `'${dateFrom}'` : null},
+    //   @DateTo = ${dateTo !== null ? `'${dateTo}'` : null},
+    //   @GreaterThan = ${greaterThan == "null" ? null: `'${greaterThan}'` },
     //   @LessThan = ${lessThan == "null" ? null: `'${lessThan}'` }
     // `);
 
-
     const pool = await sql.connect(config);
     const result = await pool
-  .request()
-  .input("ItemId", sql.VarChar(100), itemId || null)
-  .input("CompanyId", sql.VarChar(100), companyId || null)
-  .input("VendorId", sql.VarChar(100), vendorId || null)
-  .input("ShowHide", sql.Int, showHide !== null ? showHide : null)
-  .input("GroupItemId", sql.Int, groupItemId !== null ? groupItemId : null)
-  .input("BranchId", sql.Int, branchId !== null ? branchId : null)
-  .input("DateFrom", sql.DateTime, dateFrom !== null ? dateFrom : null)
-  .input("DateTo", sql.DateTime, dateTo !== null ? dateTo : null)
-  .input("GreaterThan", sql.VarChar(100), greaterThan == "null" ? null : greaterThan)
-  .input("LessThan", sql.VarChar(100), lessThan == "null" ? null : lessThan)
-  .execute("Fabrice_Stock_Position_det");
+      .request()
+      .input("ItemId", sql.VarChar(100), itemId || null)
+      .input("CompanyId", sql.VarChar(100), companyId || null)
+      .input("VendorId", sql.VarChar(100), vendorId || null)
+      .input("ShowHide", sql.Int, showHide !== null ? showHide : null)
+      .input("GroupItemId", sql.Int, groupItemId !== null ? groupItemId : null)
+      .input("BranchId", sql.Int, branchId !== null ? branchId : null)
+      .input("DateFrom", sql.DateTime, dateFrom !== null ? dateFrom : null)
+      .input("DateTo", sql.DateTime, dateTo !== null ? dateTo : null)
+      .input(
+        "GreaterThan",
+        sql.VarChar(100),
+        greaterThan == "null" ? null : greaterThan
+      )
+      .input("LessThan", sql.VarChar(100), lessThan == "null" ? null : lessThan)
+      .execute("Fabrice_Stock_Position_det");
 
     await closeConnection();
 

@@ -106,6 +106,7 @@ const FabricList = () => {
           method: "GET",
         }
       );
+      console.log(response);
 
       if (!response.ok) {
         toast.error(`Error: ${response.statusText}`, {
