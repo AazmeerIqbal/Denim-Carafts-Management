@@ -7,7 +7,7 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
   const [localCollapsed, setLocalCollapsed] = useState(true);
 
   const calculateTotal = (data) =>
-    data.reduce((total, item) => total + Number(item.Balance || 0), 0);
+    data.reduce((total, item) => total + Number(item.BalanceAmount || 0), 0);
 
   const totalExport = calculateTotal(receivableExport);
   const totalLocal = calculateTotal(receivableLocal);
@@ -46,56 +46,72 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                     <Loader rotate={true} className="dark:text-white" />
                   </div>
                 ) : receivableExport.length > 0 ? (
-                  <div className="overflow-x-auto mt-4">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 md:text-sm text-xs">
-                      <thead className="bg-gray-50 dark:bg-gray-700">
-                        <tr className="text-gray-600 dark:text-gray-300 font-semibold">
-                          <th className="px-2 py-1 text-left">Account Title</th>
-                          <th className="px-2 py-1 text-right">Balance</th>
-                          <th className="px-2 py-1 text-center">Tag</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {receivableExport.map((bank, index) => (
+                  <div className="relative overflow-x-auto mt-4">
+                    <div className="max-w-full overflow-x-auto">
+                      <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
+                        <thead className="bg-gray-50 dark:bg-gray-700">
+                          <tr className="text-gray-600 dark:text-gray-300 font-semibold">
+                            <th className="px-2 py-1 text-left w-[50%] sticky left-0 bg-gray-50 dark:bg-gray-700 z-10">
+                              Account Title
+                            </th>
+                            <th className="px-2 py-1 text-right w-[40%]">
+                              Balance
+                            </th>
+                            <th className="px-2 py-1 text-center w-[10%]">
+                              Tag
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {receivableExport.map((bank, index) => (
+                            <tr
+                              key={index}
+                              className={`${
+                                bank.Tag === "Cr"
+                                  ? "text-red-400"
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              <td className="px-2 py-1 break-words sticky left-0 bg-white dark:bg-gray-800 z-10">
+                                {bank.AccountTitle}
+                              </td>
+                              <td className="px-2 py-1 text-right">
+                                {Number(bank.BalanceAmount).toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                  }
+                                )}
+                              </td>
+                              <td className="px-2 py-1 text-center">
+                                {bank.Tag}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-gray-100 dark:bg-gray-700">
                           <tr
-                            key={index}
-                            className={`${
-                              bank.Tag === "Cr"
-                                ? "text-red-400"
-                                : "text-gray-900 dark:text-white"
+                            className={`font-bold  ${
+                              totalExport >= 0
+                                ? "text-gray-900 dark:text-white"
+                                : "text-red-400"
                             }`}
                           >
-                            <td className="px-2 py-1 truncate max-w-xs">
-                              {bank.AccountTitle}
+                            <td className="px-2 py-1 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
+                              Total
                             </td>
                             <td className="px-2 py-1 text-right">
-                              {Number(bank.Balance).toLocaleString(undefined, {
+                              {totalExport.toLocaleString(undefined, {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
-                            <td className="px-2 py-1 text-center">
-                              {bank.Tag}
+                            <td className="text-center">
+                              {totalExport >= 0 ? "Dr" : "Cr"}
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot className="bg-gray-100 dark:bg-gray-700">
-                        <tr
-                          className={`font-bold  dark:text-white ${
-                            totalExport >= 0 ? "text-gray-900" : "text-red-400"
-                          }`}
-                        >
-                          <td className="px-2 py-1 text-right" colSpan="2">
-                            {totalExport.toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                            })}
-                          </td>
-                          <td className="text-center">
-                            {totalExport >= 0 ? "Dr" : "Cr"}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                        </tfoot>
+                      </table>
+                    </div>
                   </div>
                 ) : (
                   <div className="py-10 text-center text-gray-500 dark:text-gray-400">
@@ -140,56 +156,72 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                     <Loader rotate={true} className="dark:text-white" />
                   </div>
                 ) : receivableLocal.length > 0 ? (
-                  <div className="overflow-x-auto mt-4">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 md:text-sm text-xs">
-                      <thead className="bg-gray-50 dark:bg-gray-700">
-                        <tr className="text-gray-600 dark:text-gray-300 font-semibold">
-                          <th className="px-2 py-1 text-left">Account Title</th>
-                          <th className="px-2 py-1 text-right">Balance</th>
-                          <th className="px-2 py-1 text-center">Tag</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {receivableLocal.map((cash, index) => (
+                  <div className="relative overflow-x-auto mt-4">
+                    <div className="max-w-full overflow-x-auto">
+                      <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
+                        <thead className="bg-gray-50 dark:bg-gray-700">
+                          <tr className="text-gray-600 dark:text-gray-300 font-semibold">
+                            <th className="px-2 py-1 text-left w-[50%] sticky left-0 bg-gray-50 dark:bg-gray-700 z-10">
+                              Account Title
+                            </th>
+                            <th className="px-2 py-1 text-right w-[40%]">
+                              Balance
+                            </th>
+                            <th className="px-2 py-1 text-center w-[10%]">
+                              Tag
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {receivableLocal.map((cash, index) => (
+                            <tr
+                              key={index}
+                              className={`${
+                                cash.Tag === "Cr"
+                                  ? "text-red-400"
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              <td className="px-2 py-1 break-words sticky left-0 bg-white dark:bg-gray-800 z-10">
+                                {cash.AccountTitle}
+                              </td>
+                              <td className="px-2 py-1 text-right">
+                                {Number(cash.BalanceAmount).toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                  }
+                                )}
+                              </td>
+                              <td className="px-2 py-1 text-center">
+                                {cash.Tag}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-gray-100 dark:bg-gray-700">
                           <tr
-                            key={index}
-                            className={`${
-                              cash.Tag === "Cr"
-                                ? "text-red-400"
-                                : "text-gray-900 dark:text-white"
+                            className={`font-bold  ${
+                              totalLocal >= 0
+                                ? "text-gray-900 dark:text-white"
+                                : "text-red-400"
                             }`}
                           >
-                            <td className="px-2 py-1 truncate max-w-xs">
-                              {cash.AccountTitle}
+                            <td className="px-2 py-1 sticky left-0 bg-gray-100 dark:bg-gray-700 z-10">
+                              Total
                             </td>
                             <td className="px-2 py-1 text-right">
-                              {Number(cash.Balance).toLocaleString(undefined, {
+                              {totalLocal.toLocaleString(undefined, {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
-                            <td className="px-2 py-1 text-center">
-                              {cash.Tag}
+                            <td className="text-center">
+                              {totalLocal >= 0 ? "Dr" : "Cr"}
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                      <tfoot className="bg-gray-100 dark:bg-gray-700">
-                        <tr
-                          className={`font-bold  dark:text-white ${
-                            totalLocal >= 0 ? "text-gray-900" : "text-red-400"
-                          }`}
-                        >
-                          <td className="px-2 py-1 text-right" colSpan="2">
-                            {totalLocal.toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                            })}
-                          </td>
-                          <td className="text-center">
-                            {totalLocal >= 0 ? "Dr" : "Cr"}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                        </tfoot>
+                      </table>
+                    </div>
                   </div>
                 ) : (
                   <div className="py-10 text-center text-gray-500 dark:text-gray-400">

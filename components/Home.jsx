@@ -17,6 +17,7 @@ import PayableSummeryCharLoad from "@/components/Charts/payableSummery/PayableSu
 import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImport/PayableSummeryImportChartLoad";
 import BankAndCashPosition from "@/components/Dashboard/BandAndCashPosition";
 import Receivable from "@/components/Dashboard/Receivable";
+import PayableAndLoan from "@/components/Dashboard/PayableAndLoan";
 import { GoArrowUpRight } from "react-icons/go";
 
 const Home = () => {
@@ -30,6 +31,9 @@ const Home = () => {
   const [cashPositions, setCashPositions] = useState([]);
   const [receivableExport, setReceivableExport] = useState([]);
   const [receivableLocal, setreceivableLocal] = useState([]);
+  const [tradersPayable, settradersPayable] = useState([]);
+  const [loansPayable, setloansPayable] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const { currentColor } = useStateContext();
   const [listDisplay, setListDisplay] = useState(false);
@@ -120,6 +124,8 @@ const Home = () => {
       setCashPositions(data.cashPositions);
       setReceivableExport(data.receivableExport);
       setreceivableLocal(data.receivableLocal);
+      settradersPayable(data.tradersPayable);
+      setloansPayable(data.loansPayable);
     } catch (error) {
       console.error("Failed to fetch cash and bank positions:", error);
     } finally {
@@ -233,6 +239,21 @@ const Home = () => {
             isLoading={isLoading}
             receivableExport={receivableExport}
             receivableLocal={receivableLocal}
+          />
+        </div>
+
+        {/* Payable and Loan */}
+        <div
+          class="grid gap-2
+         grid-cols-1 
+         sm:grid-cols-2 
+         md:grid-cols-3 
+         lg:grid-cols-4 mt-8"
+        >
+          <PayableAndLoan
+            isLoading={isLoading}
+            tradersPayable={tradersPayable}
+            loansPayable={loansPayable}
           />
         </div>
 

@@ -32,6 +32,16 @@ export const GET = async (req, { params }) => {
       .input("IsChildOf", sql.VarChar, "1201002")
       .execute("BankAndCashPosition");
 
+    const tradersPayable = await pool
+      .request()
+      .input("IsChildOf", sql.VarChar, "2101001")
+      .execute("BankAndCashPosition");
+
+    const loansPayable = await pool
+      .request()
+      .input("IsChildOf", sql.VarChar, "2102001")
+      .execute("BankAndCashPosition");
+
     // Return the results
     return new Response(
       JSON.stringify({
@@ -39,6 +49,8 @@ export const GET = async (req, { params }) => {
         cashPositions: cashResult.recordset,
         receivableExport: receivableExport.recordset,
         receivableLocal: receivableLocal.recordset,
+        tradersPayable: tradersPayable.recordset,
+        loansPayable: loansPayable.recordset,
       }),
       {
         status: 200,
