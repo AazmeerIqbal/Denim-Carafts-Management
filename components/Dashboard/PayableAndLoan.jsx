@@ -1,6 +1,8 @@
 import { Loader, ChevronDown, ChevronUp } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaExchangeAlt } from "react-icons/fa";
+import { GiPayMoney } from "react-icons/gi";
 
 const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
   const [tradersCollapsed, setTradersCollapsed] = useState(true);
@@ -58,7 +60,8 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
       <div className="col-span-1 sm:col-span-1 md:col-span-2 md:row-span-2">
         <div className="w-full p-4 sm:p-5 drop-shadow-2xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white">
+            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white flex gap-2">
+              <FaExchangeAlt />
               Traders Payable
             </h5>
             <button
@@ -157,7 +160,7 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
                                       })}
                                     </td>
                                     <td className="px-2 py-1 text-center">
-                                      {subtotal <= 0 ? "Cr" : "Dr"}
+                                      {subtotal >= 0 ? "Cr" : "Dr"}
                                     </td>
                                   </tr>
                                 </React.Fragment>
@@ -204,7 +207,8 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
       <div className="col-span-1 sm:col-span-1 md:col-start-3 md:col-span-2 md:row-span-2">
         <div className="w-full p-4 sm:p-5 drop-shadow-2xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white">
+            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white flex gap-2">
+              <GiPayMoney />
               Loans Payable
             </h5>
             <button
@@ -303,7 +307,7 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
                                       })}
                                     </td>
                                     <td className="px-2 py-1 text-center">
-                                      {subtotal <= 0 ? "Cr" : "Dr"}
+                                      {subtotal >= 0 ? "Cr" : "Dr"}
                                     </td>
                                   </tr>
                                 </React.Fragment>

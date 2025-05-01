@@ -18,6 +18,7 @@ import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImp
 import BankAndCashPosition from "@/components/Dashboard/BandAndCashPosition";
 import Receivable from "@/components/Dashboard/Receivable";
 import PayableAndLoan from "@/components/Dashboard/PayableAndLoan";
+import OrderDetails from "@/components/Dashboard/OrderDetails";
 import { GoArrowUpRight } from "react-icons/go";
 
 const Home = () => {
@@ -134,7 +135,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    getFabricPostions();
+    // getFabricPostions();
     getCashAndBankPositions();
   }, [session?.user?.id]);
 
@@ -255,6 +256,16 @@ const Home = () => {
             tradersPayable={tradersPayable}
             loansPayable={loansPayable}
           />
+        </div>
+
+        <div
+          class="grid gap-2
+         grid-cols-1 
+         sm:grid-cols-2 
+         md:grid-cols-3 
+         lg:grid-cols-4 mt-8"
+        >
+          <OrderDetails />
         </div>
 
         {/* Chart Component */}

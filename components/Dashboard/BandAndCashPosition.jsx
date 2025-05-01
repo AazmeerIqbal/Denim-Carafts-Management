@@ -1,6 +1,8 @@
 import { Loader, ChevronDown, ChevronUp } from "lucide-react";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CiBank } from "react-icons/ci";
+import { GiReceiveMoney } from "react-icons/gi";
 
 const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
   const [bankCollapsed, setBankCollapsed] = useState(true);
@@ -17,7 +19,8 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
       <div className="col-span-1 sm:col-span-1 md:col-span-2 md:row-span-2">
         <div className="w-full p-4 sm:p-5 drop-shadow-2xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white">
+            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white flex gap-2">
+              <CiBank />
               Bank Status
             </h5>
             <button
@@ -126,7 +129,8 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
       <div className="col-span-1 sm:col-span-1 md:col-start-3 md:col-span-2 md:row-span-2">
         <div className="w-full p-4 sm:p-5 drop-shadow-2xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white">
+            <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white flex gap-2">
+              <GiReceiveMoney />
               Cash In Hands
             </h5>
             <button
