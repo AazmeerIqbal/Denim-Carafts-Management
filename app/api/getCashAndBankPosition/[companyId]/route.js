@@ -42,6 +42,10 @@ export const GET = async (req, { params }) => {
       .input("IsChildOf", sql.VarChar, "2102001")
       .execute("BankAndCashPosition");
 
+    const orderDetails = await pool
+      .request()
+      .execute("sp_Cus_Order_mst_AccessShort");
+
     // Return the results
     return new Response(
       JSON.stringify({
@@ -51,6 +55,7 @@ export const GET = async (req, { params }) => {
         receivableLocal: receivableLocal.recordset,
         tradersPayable: tradersPayable.recordset,
         loansPayable: loansPayable.recordset,
+        orderDetails: orderDetails.recordsets[1],
       }),
       {
         status: 200,
