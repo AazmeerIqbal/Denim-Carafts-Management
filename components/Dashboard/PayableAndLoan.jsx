@@ -1,4 +1,4 @@
-import { Loader, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader, ChevronDown, ChevronUp, Search } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaExchangeAlt } from "react-icons/fa";
@@ -7,6 +7,8 @@ import { GiPayMoney } from "react-icons/gi";
 const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
   const [tradersCollapsed, setTradersCollapsed] = useState(true);
   const [loansCollapsed, setLoansCollapsed] = useState(true);
+  const [tradersSearchTerm, setTradersSearchTerm] = useState("");
+  const [loansSearchTerm, setLoansSearchTerm] = useState("");
 
   const calculateTotal = (data) =>
     data?.reduce((total, item) => total + Number(item.BalanceAmount || 0), 0) ||
@@ -43,6 +45,44 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
     });
     return grouped;
   }, [loansPayable]);
+
+  // Filter traders based on search term
+  const filteredTradersPayable = useMemo(() => {
+    if (!tradersPayable) return {};
+
+    const filtered = tradersPayable.filter((item) =>
+      item.AccountTitle.toLowerCase().includes(tradersSearchTerm.toLowerCase())
+    );
+
+    const grouped = {};
+    filtered.forEach((item) => {
+      const parentTitle = item.ParentAccountTitle || "Other";
+      if (!grouped[parentTitle]) {
+        grouped[parentTitle] = [];
+      }
+      grouped[parentTitle].push(item);
+    });
+    return grouped;
+  }, [tradersPayable, tradersSearchTerm]);
+
+  // Filter loans based on search term
+  const filteredLoansPayable = useMemo(() => {
+    if (!loansPayable) return {};
+
+    const filtered = loansPayable.filter((item) =>
+      item.AccountTitle.toLowerCase().includes(loansSearchTerm.toLowerCase())
+    );
+
+    const grouped = {};
+    filtered.forEach((item) => {
+      const parentTitle = item.ParentAccountTitle || "Other";
+      if (!grouped[parentTitle]) {
+        grouped[parentTitle] = [];
+      }
+      grouped[parentTitle].push(item);
+    });
+    return grouped;
+  }, [loansPayable, loansSearchTerm]);
 
   // Calculate subtotals for each parent group
   const calculateSubtotal = (items) => {
@@ -91,6 +131,18 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
                 ) : tradersPayable?.length > 0 ? (
                   <div className="relative overflow-x-auto mt-4">
                     <div className="max-w-full overflow-x-auto">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <Search className="w-4 h-4 text-gray-500 dark:text-gray-400 " />
+                        </div>
+                        <input
+                          type="search"
+                          className="w-full p-2 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Search account title..."
+                          value={tradersSearchTerm}
+                          onChange={(e) => setTradersSearchTerm(e.target.value)}
+                        />
+                      </div>
                       <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                           <tr className="text-gray-600 dark:text-gray-300 font-semibold">
@@ -106,9 +158,9 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {Object.keys(groupedTradersPayable).map(
+                          {Object.keys(filteredTradersPayable).map(
                             (parentTitle, groupIndex) => {
-                              const items = groupedTradersPayable[parentTitle];
+                              const items = filteredTradersPayable[parentTitle];
                               const subtotal = calculateSubtotal(items);
 
                               return (
@@ -238,6 +290,18 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
                 ) : loansPayable?.length > 0 ? (
                   <div className="relative overflow-x-auto mt-4">
                     <div className="max-w-full overflow-x-auto">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <input
+                          type="search"
+                          className="w-full p-2 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Search account title..."
+                          value={loansSearchTerm}
+                          onChange={(e) => setLoansSearchTerm(e.target.value)}
+                        />
+                      </div>
                       <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                           <tr className="text-gray-600 dark:text-gray-300 font-semibold">
@@ -253,9 +317,9 @@ const PayableAndLoan = ({ isLoading, tradersPayable, loansPayable }) => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {Object.keys(groupedLoansPayable).map(
+                          {Object.keys(filteredLoansPayable).map(
                             (parentTitle, groupIndex) => {
-                              const items = groupedLoansPayable[parentTitle];
+                              const items = filteredLoansPayable[parentTitle];
                               const subtotal = calculateSubtotal(items);
 
                               return (

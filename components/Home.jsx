@@ -12,6 +12,9 @@ import { useStateContext } from "@/components/contexts/ContextProvider";
 import chroma from "chroma-js";
 import FabricReport from "@/components/Reports/FabricList";
 import dayjs from "dayjs";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { FaFilePdf } from "react-icons/fa";
 
 import PayableSummeryCharLoad from "@/components/Charts/payableSummery/PayableSummeryCharLoad";
 import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImport/PayableSummeryImportChartLoad";
@@ -162,58 +165,453 @@ const Home = () => {
     },
   ];
 
+  // Function to generate PDF with all tables
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const timestamp = new Date().toLocaleString();
+    const companyName = session?.user?.companyName || "Dashboard Report";
+
+    // Add title and timestamp
+    doc.setFontSize(16);
+    doc.text(companyName, pageWidth / 2, 10, { align: "center" });
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${timestamp}`, pageWidth - 15, 20, {
+      align: "right",
+    });
+    doc.setFontSize(12);
+
+    let yPos = 30;
+
+    // Bank Status
+    if (bankPositions.length > 0) {
+      doc.text("Bank Status", 14, yPos);
+      yPos += 5;
+
+      const bankColumns = [
+        { header: "Account Title", dataKey: "AccountTitle" },
+        { header: "Balance", dataKey: "Balance" },
+        { header: "Tag", dataKey: "Tag" },
+      ];
+
+      const bankRows = bankPositions.map((bank) => ({
+        AccountTitle: bank.AccountTitle,
+        Balance: Number(bank.BalanceAmount).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: bank.Tag,
+      }));
+
+      // Add total row
+      const totalBank = bankPositions.reduce(
+        (total, item) => total + Number(item.BalanceAmount || 0),
+        0
+      );
+
+      bankRows.push({
+        AccountTitle: "Total",
+        Balance: totalBank.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: totalBank >= 0 ? "Dr" : "Cr",
+      });
+
+      doc.autoTable({
+        startY: yPos,
+        head: [bankColumns.map((col) => col.header)],
+        body: bankRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 10;
+    }
+
+    // Cash In Hands
+    if (cashPositions.length > 0) {
+      doc.text("Cash In Hands", 14, yPos);
+      yPos += 5;
+
+      const cashColumns = [
+        { header: "Account Title", dataKey: "AccountTitle" },
+        { header: "Balance", dataKey: "Balance" },
+        { header: "Tag", dataKey: "Tag" },
+      ];
+
+      const cashRows = cashPositions.map((cash) => ({
+        AccountTitle: cash.AccountTitle,
+        Balance: Number(cash.BalanceAmount).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: cash.Tag,
+      }));
+
+      // Add total row
+      const totalCash = cashPositions.reduce(
+        (total, item) => total + Number(item.BalanceAmount || 0),
+        0
+      );
+
+      cashRows.push({
+        AccountTitle: "Total",
+        Balance: totalCash.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: totalCash >= 0 ? "Dr" : "Cr",
+      });
+
+      doc.autoTable({
+        startY: yPos,
+        head: [cashColumns.map((col) => col.header)],
+        body: cashRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 10;
+
+      // Add new page if not enough space
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+    }
+
+    // Export Receivable
+    if (receivableExport.length > 0) {
+      doc.text("Export Receivable", 14, yPos);
+      yPos += 5;
+
+      const receiveExportColumns = [
+        { header: "Account Title", dataKey: "AccountTitle" },
+        { header: "Balance", dataKey: "Balance" },
+        { header: "Tag", dataKey: "Tag" },
+      ];
+
+      const receiveExportRows = receivableExport.map((item) => ({
+        AccountTitle: item.AccountTitle,
+        Balance: Number(item.BalanceAmount).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: item.Tag,
+      }));
+
+      // Add total row
+      const totalExport = receivableExport.reduce(
+        (total, item) => total + Number(item.BalanceAmount || 0),
+        0
+      );
+
+      receiveExportRows.push({
+        AccountTitle: "Total",
+        Balance: totalExport.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: totalExport >= 0 ? "Dr" : "Cr",
+      });
+
+      doc.autoTable({
+        startY: yPos,
+        head: [receiveExportColumns.map((col) => col.header)],
+        body: receiveExportRows.map((row) => [
+          row.AccountTitle,
+          row.Balance,
+          row.Tag,
+        ]),
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 10;
+
+      // Add new page if not enough space
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+    }
+
+    // Local Receivable
+    if (receivableLocal.length > 0) {
+      doc.text("Local Receivable", 14, yPos);
+      yPos += 5;
+
+      const receiveLocalColumns = [
+        { header: "Account Title", dataKey: "AccountTitle" },
+        { header: "Balance", dataKey: "Balance" },
+        { header: "Tag", dataKey: "Tag" },
+      ];
+
+      const receiveLocalRows = receivableLocal.map((item) => ({
+        AccountTitle: item.AccountTitle,
+        Balance: Number(item.BalanceAmount).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: item.Tag,
+      }));
+
+      // Add total row
+      const totalLocal = receivableLocal.reduce(
+        (total, item) => total + Number(item.BalanceAmount || 0),
+        0
+      );
+
+      receiveLocalRows.push({
+        AccountTitle: "Total",
+        Balance: totalLocal.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+        }),
+        Tag: totalLocal >= 0 ? "Dr" : "Cr",
+      });
+
+      doc.autoTable({
+        startY: yPos,
+        head: [receiveLocalColumns.map((col) => col.header)],
+        body: receiveLocalRows.map((row) => [
+          row.AccountTitle,
+          row.Balance,
+          row.Tag,
+        ]),
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 10;
+
+      // Add new page if not enough space
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+    }
+
+    // Traders Payable
+    if (tradersPayable?.length > 0) {
+      doc.text("Traders Payable", 14, yPos);
+      yPos += 5;
+
+      // Group traders by ParentAccountTitle
+      const groupedTradersPayable = {};
+      tradersPayable.forEach((item) => {
+        const parentTitle = item.ParentAccountTitle || "Other";
+        if (!groupedTradersPayable[parentTitle]) {
+          groupedTradersPayable[parentTitle] = [];
+        }
+        groupedTradersPayable[parentTitle].push(item);
+      });
+
+      const tradersColumns = [
+        { header: "Account Title", dataKey: "AccountTitle" },
+        { header: "Balance", dataKey: "Balance" },
+        { header: "Tag", dataKey: "Tag" },
+      ];
+
+      const tradersRows = [];
+
+      // Add items with parent title as headers
+      Object.keys(groupedTradersPayable).forEach((parentTitle) => {
+        const items = groupedTradersPayable[parentTitle];
+
+        // Add parent title row
+        tradersRows.push([`${parentTitle} (Group)`, "", ""]);
+
+        // Add child items
+        items.forEach((item) => {
+          tradersRows.push([
+            `  ${item.AccountTitle}`,
+            Number(item.BalanceAmount).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            }),
+            item.Tag,
+          ]);
+        });
+
+        // Calculate subtotal
+        const subtotal = items.reduce(
+          (total, item) => total + Number(item.BalanceAmount || 0),
+          0
+        );
+
+        tradersRows.push([
+          "  Subtotal",
+          subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+          subtotal >= 0 ? "Cr" : "Dr",
+        ]);
+      });
+
+      // Add total row
+      const totalTraders = tradersPayable.reduce(
+        (total, item) => total + Number(item.BalanceAmount || 0),
+        0
+      );
+
+      tradersRows.push([
+        "Total",
+        totalTraders.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+        totalTraders <= 0 ? "Dr" : "Cr",
+      ]);
+
+      doc.autoTable({
+        startY: yPos,
+        head: [tradersColumns.map((col) => col.header)],
+        body: tradersRows,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 10;
+
+      // Add new page if not enough space
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+    }
+
+    // Loans Payable
+    if (loansPayable?.length > 0) {
+      doc.text("Loans Payable", 14, yPos);
+      yPos += 5;
+
+      // Group loans by ParentAccountTitle
+      const groupedLoansPayable = {};
+      loansPayable.forEach((item) => {
+        const parentTitle = item.ParentAccountTitle || "Other";
+        if (!groupedLoansPayable[parentTitle]) {
+          groupedLoansPayable[parentTitle] = [];
+        }
+        groupedLoansPayable[parentTitle].push(item);
+      });
+
+      const loansColumns = [
+        { header: "Account Title", dataKey: "AccountTitle" },
+        { header: "Balance", dataKey: "Balance" },
+        { header: "Tag", dataKey: "Tag" },
+      ];
+
+      const loansRows = [];
+
+      // Add items with parent title as headers
+      Object.keys(groupedLoansPayable).forEach((parentTitle) => {
+        const items = groupedLoansPayable[parentTitle];
+
+        // Add parent title row
+        loansRows.push([`${parentTitle} (Group)`, "", ""]);
+
+        // Add child items
+        items.forEach((item) => {
+          loansRows.push([
+            `  ${item.AccountTitle}`,
+            Number(item.BalanceAmount).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            }),
+            item.Tag,
+          ]);
+        });
+
+        // Calculate subtotal
+        const subtotal = items.reduce(
+          (total, item) => total + Number(item.BalanceAmount || 0),
+          0
+        );
+
+        loansRows.push([
+          "  Subtotal",
+          subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+          subtotal >= 0 ? "Cr" : "Dr",
+        ]);
+      });
+
+      // Add total row
+      const totalLoans = loansPayable.reduce(
+        (total, item) => total + Number(item.BalanceAmount || 0),
+        0
+      );
+
+      loansRows.push([
+        "Total",
+        totalLoans.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+        totalLoans <= 0 ? "Dr" : "Cr",
+      ]);
+
+      doc.autoTable({
+        startY: yPos,
+        head: [loansColumns.map((col) => col.header)],
+        body: loansRows,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+
+      yPos = doc.lastAutoTable.finalY + 10;
+
+      // Add new page if not enough space
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+    }
+
+    // Order Details
+    if (orderDetails?.length > 0) {
+      doc.text("Order Details", 14, yPos);
+      yPos += 5;
+
+      const orderColumns = [
+        { header: "Month", dataKey: "Month" },
+        { header: "Order Qty", dataKey: "OrderQty" },
+        { header: "Cutting Qty", dataKey: "CuttingQty" },
+        { header: "Shipped Qty", dataKey: "ShippedQty" },
+        { header: "Excess/Short", dataKey: "ExcessOrShort" },
+        { header: "Short/Access %", dataKey: "ShortOrAccessInPercentage" },
+      ];
+
+      const orderRows = orderDetails.map((item) => [
+        item.Month,
+        Number(item.OrderQty).toLocaleString(),
+        Number(item.CuttingQty).toLocaleString(),
+        Number(item.ShippedQty).toLocaleString(),
+        Number(item.ExcessOrShort).toLocaleString(),
+        item.ShortOrAccessInPercentage,
+      ]);
+
+      doc.autoTable({
+        startY: yPos,
+        head: [orderColumns.map((col) => col.header)],
+        body: orderRows,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [80, 80, 80] },
+      });
+    }
+
+    // Save PDF
+    doc.save(
+      `${companyName.replace(/\s+/g, "_")}_Dashboard_${
+        new Date().toISOString().split("T")[0]
+      }.pdf`
+    );
+  };
+
   return (
     <>
-      <div className="px-6 md:py-10 py-20">
-        {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <div className="w-full rounded-[30px] border flex flex-col justify-center hover:shadow-lg min-h-[250px] bg-[rgb(255,255,255)] drop-shadow-2xl dark:bg-gray-800 dark:border-gray-700 dark:text-white items-start relative group">
-            <div className="m-5">
-              <div className="w-12 h-12 flex items-center justify-center absolute inset-x-0 top-0 ml-6 mt-6">
-                <GiWool className="text-5xl" />
-              </div>
-
-              <div className="mt-4 text-left w-full ">
-                <h2 className="text-2xl roboto-mono-500 text-gray-800 dark:text-white">
-                  Fabric
-                </h2>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-300 ">
-                  <span
-                    className="text-blue-500 underline cursor-pointer"
-                    onClick={() => {
-                      setListDisplay(true);
-                      setListData(denimData);
-                      console.log(listData);
-                    }}
-                  >
-                    Denim Fabric:
-                  </span>{" "}
-                  {denimPosition === ""
-                    ? "null"
-                    : denimPosition.toLocaleString()}
-                </p>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-300">
-                  <span
-                    className="text-blue-500 underline cursor-pointer"
-                    onClick={() => {
-                      setListDisplay(true);
-                      setListData(pocketData);
-                    }}
-                  >
-                    Pocket Lining:
-                  </span>{" "}
-                  {pocketPosition === ""
-                    ? "null"
-                    : pocketPosition.toLocaleString()}
-                </p>
-              </div>
-              <a href="/fabricList">
-                <div className="bg-gray-300 dark:bg-gray-700 w-10 h-10 rounded-full absolute bottom-0 left-0 m-4 mt-0 flex justify-center items-center hover:ring-4 ring-gray-200 dark:ring-gray-400 hover:transition duration-700 ease-in-out">
-                  <GoArrowUpRight />
-                </div>
-              </a>
-            </div>
-          </div>
-        </div> */}
+      <div className="px-6 md:py-6 py-20">
+        {/* PDF Export Button */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={generatePDF}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-2 py-1 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+          >
+            <FaFilePdf className="text-lg" />
+            Export to PDF
+          </button>
+        </div>
 
         {/* Positions */}
         <div

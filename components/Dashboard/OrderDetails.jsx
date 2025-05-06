@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Loader, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { GiRolledCloth } from "react-icons/gi";
 
 const OrderDetails = ({ isLoading, orderDetails }) => {
   const [collapsed, setCollapsed] = useState(true);
   return (
     <div className="w-full p-4 sm:p-5 drop-shadow-2xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-between">
-        <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white">
+        <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white flex gap-2">
+          <GiRolledCloth />
           Order Details
         </h5>
         <button
