@@ -1,5 +1,5 @@
-import { Loader, ChevronDown, ChevronUp } from "lucide-react";
-import React, { useState } from "react";
+import { Loader, ChevronDown, ChevronUp, Search } from "lucide-react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BiMoneyWithdraw } from "react-icons/bi";
 import { GiTakeMyMoney } from "react-icons/gi";
@@ -7,12 +7,36 @@ import { GiTakeMyMoney } from "react-icons/gi";
 const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
   const [exportCollapsed, setExportCollapsed] = useState(true);
   const [localCollapsed, setLocalCollapsed] = useState(true);
+  const [exportSearchTerm, setExportSearchTerm] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
 
   const calculateTotal = (data) =>
     data.reduce((total, item) => total + Number(item.BalanceAmount || 0), 0);
 
   const totalExport = calculateTotal(receivableExport);
   const totalLocal = calculateTotal(receivableLocal);
+
+  // Filter export receivables based on search term
+  const filteredExportReceivables = useMemo(() => {
+    if (!receivableExport || !receivableExport.length) return [];
+
+    return receivableExport.filter((item) =>
+      item.AccountTitle.toLowerCase().includes(exportSearchTerm.toLowerCase())
+    );
+  }, [receivableExport, exportSearchTerm]);
+
+  // Filter local receivables based on search term
+  const filteredLocalReceivables = useMemo(() => {
+    if (!receivableLocal || !receivableLocal.length) return [];
+
+    return receivableLocal.filter((item) =>
+      item.AccountTitle.toLowerCase().includes(localSearchTerm.toLowerCase())
+    );
+  }, [receivableLocal, localSearchTerm]);
+
+  // Calculate totals for filtered data
+  const filteredTotalExport = calculateTotal(filteredExportReceivables);
+  const filteredTotalLocal = calculateTotal(filteredLocalReceivables);
 
   return (
     <>
@@ -51,6 +75,18 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                 ) : receivableExport.length > 0 ? (
                   <div className="relative overflow-x-auto mt-4">
                     <div className="max-w-full overflow-x-auto">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <input
+                          type="search"
+                          className="w-full p-2 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Search account title..."
+                          value={exportSearchTerm}
+                          onChange={(e) => setExportSearchTerm(e.target.value)}
+                        />
+                      </div>
                       <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                           <tr className="text-gray-600 dark:text-gray-300 font-semibold">
@@ -66,20 +102,20 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {receivableExport.map((bank, index) => (
+                          {filteredExportReceivables.map((item, index) => (
                             <tr
                               key={index}
                               className={`${
-                                bank.Tag === "Cr"
+                                item.Tag === "Cr"
                                   ? "text-red-400"
                                   : "text-gray-900 dark:text-white"
                               }`}
                             >
                               <td className="px-2 py-1 break-words sticky left-0 bg-white dark:bg-gray-800 z-10">
-                                {bank.AccountTitle}
+                                {item.AccountTitle}
                               </td>
                               <td className="px-2 py-1 text-right">
-                                {Number(bank.BalanceAmount).toLocaleString(
+                                {Number(item.BalanceAmount).toLocaleString(
                                   undefined,
                                   {
                                     minimumFractionDigits: 2,
@@ -87,7 +123,7 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                                 )}
                               </td>
                               <td className="px-2 py-1 text-center">
-                                {bank.Tag}
+                                {item.Tag}
                               </td>
                             </tr>
                           ))}
@@ -95,7 +131,7 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                         <tfoot className="bg-gray-100 dark:bg-gray-700">
                           <tr
                             className={`font-bold  ${
-                              totalExport >= 0
+                              filteredTotalExport >= 0
                                 ? "text-gray-900 dark:text-white"
                                 : "text-red-400"
                             }`}
@@ -104,12 +140,12 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                               Total
                             </td>
                             <td className="px-2 py-1 text-right">
-                              {totalExport.toLocaleString(undefined, {
+                              {filteredTotalExport.toLocaleString(undefined, {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
                             <td className="text-center">
-                              {totalExport >= 0 ? "Dr" : "Cr"}
+                              {filteredTotalExport >= 0 ? "Dr" : "Cr"}
                             </td>
                           </tr>
                         </tfoot>
@@ -162,6 +198,18 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                 ) : receivableLocal.length > 0 ? (
                   <div className="relative overflow-x-auto mt-4">
                     <div className="max-w-full overflow-x-auto">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <input
+                          type="search"
+                          className="w-full p-2 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Search account title..."
+                          value={localSearchTerm}
+                          onChange={(e) => setLocalSearchTerm(e.target.value)}
+                        />
+                      </div>
                       <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                           <tr className="text-gray-600 dark:text-gray-300 font-semibold">
@@ -177,20 +225,20 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {receivableLocal.map((cash, index) => (
+                          {filteredLocalReceivables.map((item, index) => (
                             <tr
                               key={index}
                               className={`${
-                                cash.Tag === "Cr"
+                                item.Tag === "Cr"
                                   ? "text-red-400"
                                   : "text-gray-900 dark:text-white"
                               }`}
                             >
                               <td className="px-2 py-1 break-words sticky left-0 bg-white dark:bg-gray-800 z-10">
-                                {cash.AccountTitle}
+                                {item.AccountTitle}
                               </td>
                               <td className="px-2 py-1 text-right">
-                                {Number(cash.BalanceAmount).toLocaleString(
+                                {Number(item.BalanceAmount).toLocaleString(
                                   undefined,
                                   {
                                     minimumFractionDigits: 2,
@@ -198,7 +246,7 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                                 )}
                               </td>
                               <td className="px-2 py-1 text-center">
-                                {cash.Tag}
+                                {item.Tag}
                               </td>
                             </tr>
                           ))}
@@ -206,7 +254,7 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                         <tfoot className="bg-gray-100 dark:bg-gray-700">
                           <tr
                             className={`font-bold  ${
-                              totalLocal >= 0
+                              filteredTotalLocal >= 0
                                 ? "text-gray-900 dark:text-white"
                                 : "text-red-400"
                             }`}
@@ -215,12 +263,12 @@ const Receivable = ({ isLoading, receivableExport, receivableLocal }) => {
                               Total
                             </td>
                             <td className="px-2 py-1 text-right">
-                              {totalLocal.toLocaleString(undefined, {
+                              {filteredTotalLocal.toLocaleString(undefined, {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
                             <td className="text-center">
-                              {totalLocal >= 0 ? "Dr" : "Cr"}
+                              {filteredTotalLocal >= 0 ? "Dr" : "Cr"}
                             </td>
                           </tr>
                         </tfoot>

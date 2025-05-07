@@ -23,6 +23,7 @@ import Receivable from "@/components/Dashboard/Receivable";
 import PayableAndLoan from "@/components/Dashboard/PayableAndLoan";
 import OrderDetails from "@/components/Dashboard/OrderDetails";
 import { GoArrowUpRight } from "react-icons/go";
+import { BorderColor } from "@mui/icons-material";
 
 const Home = () => {
   const { data: session } = useSession();
@@ -38,6 +39,8 @@ const Home = () => {
   const [tradersPayable, settradersPayable] = useState([]);
   const [loansPayable, setloansPayable] = useState([]);
   const [orderDetails, setorderDetails] = useState([]);
+
+  console.log("sessionsss:", session?.user);
 
   const [isLoading, setIsLoading] = useState(true);
   const { currentColor } = useStateContext();
@@ -169,14 +172,31 @@ const Home = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    const timestamp = new Date().toLocaleString();
+    const date = new Date();
+
+    const day = date.getDate();
+    const month = date.toLocaleString("en-GB", { month: "short" });
+    const year = date.getFullYear();
+
+    const time = date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    const formattedTimestamp = `${day}-${month}-${year}, ${time}`;
+
     const companyName = session?.user?.companyName || "Dashboard Report";
+    const companyAddress = session?.user?.companyName || "";
 
     // Add title and timestamp
     doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0); // Pure black text color
     doc.text(companyName, pageWidth / 2, 10, { align: "center" });
+    doc.text();
     doc.setFontSize(10);
-    doc.text(`Generated on: ${timestamp}`, pageWidth - 15, 20, {
+    doc.text(`Generated on: ${formattedTimestamp}`, pageWidth - 15, 20, {
       align: "right",
     });
     doc.setFontSize(12);
@@ -219,10 +239,33 @@ const Home = () => {
       doc.autoTable({
         startY: yPos,
         head: [bankColumns.map((col) => col.header)],
-        body: bankRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
+        body: bankRows.map((row, index) => [
+          row.AccountTitle,
+          row.Balance,
+          row.Tag,
+        ]),
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Balance column
+          2: { halign: "center" }, // Center Tag column
+        },
+        // Make the total row bold
+        didParseCell: function (data) {
+          if (data.row.index === bankRows.length - 1) {
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
       });
 
       yPos = doc.lastAutoTable.finalY + 10;
@@ -266,8 +309,27 @@ const Home = () => {
         head: [cashColumns.map((col) => col.header)],
         body: cashRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Balance column
+          2: { halign: "center" }, // Center Tag column
+        },
+        // Make the total row bold
+        didParseCell: function (data) {
+          if (data.row.index === cashRows.length - 1) {
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
       });
 
       yPos = doc.lastAutoTable.finalY + 10;
@@ -321,8 +383,27 @@ const Home = () => {
           row.Tag,
         ]),
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Balance column
+          2: { halign: "center" }, // Center Tag column
+        },
+        // Make the total row bold
+        didParseCell: function (data) {
+          if (data.row.index === receiveExportRows.length - 1) {
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
       });
 
       yPos = doc.lastAutoTable.finalY + 10;
@@ -376,8 +457,27 @@ const Home = () => {
           row.Tag,
         ]),
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Balance column
+          2: { halign: "center" }, // Center Tag column
+        },
+        // Make the total row bold
+        didParseCell: function (data) {
+          if (data.row.index === receiveLocalRows.length - 1) {
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
       });
 
       yPos = doc.lastAutoTable.finalY + 10;
@@ -411,6 +511,9 @@ const Home = () => {
       ];
 
       const tradersRows = [];
+      // Track total row index for bold styling
+      let totalRowIndices = [];
+      let currentIndex = 0;
 
       // Add items with parent title as headers
       Object.keys(groupedTradersPayable).forEach((parentTitle) => {
@@ -418,6 +521,7 @@ const Home = () => {
 
         // Add parent title row
         tradersRows.push([`${parentTitle} (Group)`, "", ""]);
+        currentIndex++;
 
         // Add child items
         items.forEach((item) => {
@@ -428,6 +532,7 @@ const Home = () => {
             }),
             item.Tag,
           ]);
+          currentIndex++;
         });
 
         // Calculate subtotal
@@ -441,6 +546,8 @@ const Home = () => {
           subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
           subtotal >= 0 ? "Cr" : "Dr",
         ]);
+        totalRowIndices.push(currentIndex);
+        currentIndex++;
       });
 
       // Add total row
@@ -454,14 +561,44 @@ const Home = () => {
         totalTraders.toLocaleString(undefined, { minimumFractionDigits: 2 }),
         totalTraders <= 0 ? "Dr" : "Cr",
       ]);
+      totalRowIndices.push(currentIndex);
 
       doc.autoTable({
         startY: yPos,
         head: [tradersColumns.map((col) => col.header)],
         body: tradersRows,
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Balance column
+          2: { halign: "center" }, // Center Tag column
+        },
+        // Make the subtotal and total rows bold
+        didParseCell: function (data) {
+          if (
+            totalRowIndices.includes(data.row.index) ||
+            data.row.index === tradersRows.length - 1
+          ) {
+            data.cell.styles.fontStyle = "bold";
+          }
+
+          // Style for parent title rows
+          if (data.row.raw[0].includes("(Group)") && data.section === "body") {
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.fillColor = [0, 0, 0]; // Pure black background for group headers
+            data.cell.styles.textColor = [255, 255, 255]; // White text for group headers
+          }
+        },
       });
 
       yPos = doc.lastAutoTable.finalY + 10;
@@ -495,6 +632,9 @@ const Home = () => {
       ];
 
       const loansRows = [];
+      // Track total row index for bold styling
+      let totalRowIndices = [];
+      let currentIndex = 0;
 
       // Add items with parent title as headers
       Object.keys(groupedLoansPayable).forEach((parentTitle) => {
@@ -502,6 +642,7 @@ const Home = () => {
 
         // Add parent title row
         loansRows.push([`${parentTitle} (Group)`, "", ""]);
+        currentIndex++;
 
         // Add child items
         items.forEach((item) => {
@@ -512,6 +653,7 @@ const Home = () => {
             }),
             item.Tag,
           ]);
+          currentIndex++;
         });
 
         // Calculate subtotal
@@ -525,6 +667,8 @@ const Home = () => {
           subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
           subtotal >= 0 ? "Cr" : "Dr",
         ]);
+        totalRowIndices.push(currentIndex);
+        currentIndex++;
       });
 
       // Add total row
@@ -538,14 +682,44 @@ const Home = () => {
         totalLoans.toLocaleString(undefined, { minimumFractionDigits: 2 }),
         totalLoans <= 0 ? "Dr" : "Cr",
       ]);
+      totalRowIndices.push(currentIndex);
 
       doc.autoTable({
         startY: yPos,
         head: [loansColumns.map((col) => col.header)],
         body: loansRows,
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Balance column
+          2: { halign: "center" }, // Center Tag column
+        },
+        // Make the subtotal and total rows bold
+        didParseCell: function (data) {
+          if (
+            totalRowIndices.includes(data.row.index) ||
+            data.row.index === loansRows.length - 1
+          ) {
+            data.cell.styles.fontStyle = "bold";
+          }
+
+          // Style for parent title rows
+          if (data.row.raw[0].includes("(Group)") && data.section === "body") {
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.fillColor = [0, 0, 0]; // Pure black background for group headers
+            data.cell.styles.textColor = [255, 255, 255]; // White text for group headers
+          }
+        },
       });
 
       yPos = doc.lastAutoTable.finalY + 10;
@@ -585,8 +759,24 @@ const Home = () => {
         head: [orderColumns.map((col) => col.header)],
         body: orderRows,
         theme: "grid",
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [80, 80, 80] },
+        styles: {
+          fontSize: 8,
+          textColor: [0, 0, 0], // Pure black text
+          lineColor: [0, 0, 0], // Pure black lines/borders
+          lineWidth: 0.1, // Slightly thinner lines for better appearance
+        },
+        headStyles: {
+          fillColor: [0, 0, 0], // Pure black header background
+          textColor: [255, 255, 255], // White text for header
+          fontStyle: "bold",
+        },
+        columnStyles: {
+          1: { halign: "right" }, // Right align Order Qty
+          2: { halign: "right" }, // Right align Cutting Qty
+          3: { halign: "right" }, // Right align Shipped Qty
+          4: { halign: "right" }, // Right align Excess/Short
+          5: { halign: "right" }, // Right align Short/Access %
+        },
       });
     }
 
@@ -606,7 +796,8 @@ const Home = () => {
           <button
             onClick={generatePDF}
             disabled={isLoading}
-            className="flex items-center gap-2 px-2 py-1 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="flex items-center gap-2 px-2 py-1 text-white rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            style={{ backgroundColor: currentColor }}
           >
             <FaFilePdf className="text-lg" />
             Export to PDF

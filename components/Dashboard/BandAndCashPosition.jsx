@@ -1,5 +1,5 @@
-import { Loader, ChevronDown, ChevronUp } from "lucide-react";
-import React, { useState } from "react";
+import { Loader, ChevronDown, ChevronUp, Search } from "lucide-react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CiBank } from "react-icons/ci";
 import { GiReceiveMoney } from "react-icons/gi";
@@ -13,6 +13,33 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
 
   const totalBank = calculateTotal(bankPositions);
   const totalCash = calculateTotal(cashPositions);
+
+  // Search States
+  const [bankSearchTerm, setBankSearchTerm] = useState("");
+  const [cashSearchTerm, setCashSearchTerm] = useState("");
+
+  // Filter bank positions based on search term
+  const filteredBankPositions = useMemo(() => {
+    if (!bankPositions || !bankPositions.length) return [];
+
+    return bankPositions.filter((item) =>
+      item.AccountTitle.toLowerCase().includes(bankSearchTerm.toLowerCase())
+    );
+  }, [bankPositions, bankSearchTerm]);
+
+  // Filter cash positions based on search term
+  const filteredCashPositions = useMemo(() => {
+    if (!cashPositions || !cashPositions.length) return [];
+
+    return cashPositions.filter((item) =>
+      item.AccountTitle.toLowerCase().includes(cashSearchTerm.toLowerCase())
+    );
+  }, [cashPositions, cashSearchTerm]);
+
+  // Calculate totals for filtered data
+  const filteredTotalBank = calculateTotal(filteredBankPositions);
+  const filteredTotalCash = calculateTotal(filteredCashPositions);
+
   return (
     <>
       {/* <!-- Bank Status --> */}
@@ -50,6 +77,18 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                 ) : bankPositions.length > 0 ? (
                   <div className="relative overflow-x-auto mt-4">
                     <div className="max-w-full overflow-x-auto">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <input
+                          type="search"
+                          className="w-full p-2 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Search account title..."
+                          value={bankSearchTerm}
+                          onChange={(e) => setBankSearchTerm(e.target.value)}
+                        />
+                      </div>
                       <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                           <tr className="text-gray-600 dark:text-gray-300 font-semibold">
@@ -65,7 +104,7 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {bankPositions.map((bank, index) => (
+                          {filteredBankPositions.map((bank, index) => (
                             <tr
                               key={index}
                               className={`${
@@ -94,7 +133,7 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                         <tfoot className="bg-gray-100 dark:bg-gray-700">
                           <tr
                             className={`font-bold  ${
-                              totalBank >= 0
+                              filteredTotalBank >= 0
                                 ? "text-gray-900 dark:text-white"
                                 : "text-red-400"
                             }`}
@@ -103,12 +142,12 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                               Total
                             </td>
                             <td className="px-2 py-1 text-right">
-                              {totalBank.toLocaleString(undefined, {
+                              {filteredTotalBank.toLocaleString(undefined, {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
                             <td className="text-center">
-                              {totalBank >= 0 ? "Dr" : "Cr"}
+                              {filteredTotalBank >= 0 ? "Dr" : "Cr"}
                             </td>
                           </tr>
                         </tfoot>
@@ -160,6 +199,18 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                 ) : cashPositions.length > 0 ? (
                   <div className="relative overflow-x-auto mt-4">
                     <div className="max-w-full overflow-x-auto">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                          <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <input
+                          type="search"
+                          className="w-full p-2 pl-10 text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                          placeholder="Search account title..."
+                          value={cashSearchTerm}
+                          onChange={(e) => setCashSearchTerm(e.target.value)}
+                        />
+                      </div>
                       <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs table-fixed">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                           <tr className="text-gray-600 dark:text-gray-300 font-semibold">
@@ -175,7 +226,7 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                          {cashPositions.map((cash, index) => (
+                          {filteredCashPositions.map((cash, index) => (
                             <tr
                               key={index}
                               className={`${
@@ -204,7 +255,7 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                         <tfoot className="bg-gray-100 dark:bg-gray-700">
                           <tr
                             className={`font-bold  ${
-                              totalCash >= 0
+                              filteredTotalCash >= 0
                                 ? "text-gray-900 dark:text-white"
                                 : "text-red-400"
                             }`}
@@ -213,12 +264,12 @@ const BandAndCashPosition = ({ isLoading, bankPositions, cashPositions }) => {
                               Total
                             </td>
                             <td className="px-2 py-1 text-right">
-                              {totalCash.toLocaleString(undefined, {
+                              {filteredTotalCash.toLocaleString(undefined, {
                                 minimumFractionDigits: 2,
                               })}
                             </td>
                             <td className="text-center">
-                              {totalCash >= 0 ? "Dr" : "Cr"}
+                              {filteredTotalCash >= 0 ? "Dr" : "Cr"}
                             </td>
                           </tr>
                         </tfoot>
