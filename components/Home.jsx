@@ -55,6 +55,16 @@ const Home = () => {
   const today = new Date();
   const dtTo = today.toISOString().split("T")[0];
 
+  // Add new state for scheduling
+  const [scheduledTime, setScheduledTime] = useState(null);
+  const [emailScheduled, setEmailScheduled] = useState(false);
+
+  // Add these state variables at the top with other states
+  const [scheduledJobId, setScheduledJobId] = useState(null);
+  const [isScheduleActive, setIsScheduleActive] = useState(false);
+
+  const [nextScheduledTime, setNextScheduledTime] = useState(null);
+
   const getFabricPostions = async () => {
     try {
       const response = await fetch(
@@ -142,9 +152,56 @@ const Home = () => {
     }
   };
 
+  // Function to initialize or check schedule
+  const initializeSchedule = async () => {
+    try {
+      // Get client's timezone
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Initialize the schedule with client's timezone
+      const response = await fetch("/api/schedule", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ timezone }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNextScheduledTime(data.nextScheduledTime);
+      }
+    } catch (error) {
+      console.error("Error initializing schedule:", error);
+    }
+  };
+
+  // Function to check schedule status
+  const checkScheduleStatus = async () => {
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const response = await fetch(
+        `/api/schedule?timezone=${encodeURIComponent(timezone)}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setNextScheduledTime(data.nextScheduledTime);
+      }
+    } catch (error) {
+      console.error("Error checking schedule status:", error);
+    }
+  };
+
   useEffect(() => {
     // getFabricPostions();
     getCashAndBankPositions();
+    initializeSchedule(); // Initialize schedule when component mounts
+
+    // Check schedule status every minute
+    const intervalId = setInterval(checkScheduleStatus, 60000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(intervalId);
   }, [session?.user?.id]);
 
   const cards = [
@@ -168,633 +225,672 @@ const Home = () => {
     },
   ];
 
-  // Function to generate PDF with all tables
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const date = new Date();
+  // Modified generatePDF function to support both download and email
+  const generatePDF = async (forEmail = false) => {
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const date = new Date();
 
-    const day = date.getDate();
-    const month = date.toLocaleString("en-GB", { month: "short" });
-    const year = date.getFullYear();
+      const day = date.getDate();
+      const month = date.toLocaleString("en-GB", { month: "short" });
+      const year = date.getFullYear();
 
-    const time = date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
-
-    const formattedTimestamp = `${day}-${month}-${year}, ${time}`;
-
-    const companyName = session?.user?.companyName || "Dashboard Report";
-    const companyAddress = session?.user?.companyName || "";
-
-    // Add title and timestamp
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0); // Pure black text color
-    doc.text(companyName, pageWidth / 2, 10, { align: "center" });
-    doc.text();
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${formattedTimestamp}`, pageWidth - 15, 20, {
-      align: "right",
-    });
-    doc.setFontSize(12);
-
-    let yPos = 30;
-
-    // Bank Status
-    if (bankPositions.length > 0) {
-      doc.text("Bank Status", 14, yPos);
-      yPos += 5;
-
-      const bankColumns = [
-        { header: "Account Title", dataKey: "AccountTitle" },
-        { header: "Balance", dataKey: "Balance" },
-        { header: "Tag", dataKey: "Tag" },
-      ];
-
-      const bankRows = bankPositions.map((bank) => ({
-        AccountTitle: bank.AccountTitle,
-        Balance: Number(bank.BalanceAmount).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: bank.Tag,
-      }));
-
-      // Add total row
-      const totalBank = bankPositions.reduce(
-        (total, item) => total + Number(item.BalanceAmount || 0),
-        0
-      );
-
-      bankRows.push({
-        AccountTitle: "Total",
-        Balance: totalBank.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: totalBank >= 0 ? "Dr" : "Cr",
+      const time = date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
       });
 
-      doc.autoTable({
-        startY: yPos,
-        head: [bankColumns.map((col) => col.header)],
-        body: bankRows.map((row, index) => [
-          row.AccountTitle,
-          row.Balance,
-          row.Tag,
-        ]),
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Balance column
-          2: { halign: "center" }, // Center Tag column
-        },
-        // Make the total row bold
-        didParseCell: function (data) {
-          if (data.row.index === bankRows.length - 1) {
-            data.cell.styles.fontStyle = "bold";
-          }
-        },
+      const formattedTimestamp = `${day}-${month}-${year}, ${time}`;
+
+      const companyName = session?.user?.companyName || "Dashboard Report";
+      const companyAddress = session?.user?.companyName || "";
+
+      // Add title and timestamp
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0); // Pure black text color
+      doc.text(companyName, pageWidth / 2, 10, { align: "center" });
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${formattedTimestamp}`, pageWidth - 15, 20, {
+        align: "right",
       });
+      doc.setFontSize(12);
 
-      yPos = doc.lastAutoTable.finalY + 10;
-    }
+      let yPos = 30;
 
-    // Cash In Hands
-    if (cashPositions.length > 0) {
-      doc.text("Cash In Hands", 14, yPos);
-      yPos += 5;
+      // Bank Status
+      if (bankPositions.length > 0) {
+        doc.text("Bank Status", 14, yPos);
+        yPos += 5;
 
-      const cashColumns = [
-        { header: "Account Title", dataKey: "AccountTitle" },
-        { header: "Balance", dataKey: "Balance" },
-        { header: "Tag", dataKey: "Tag" },
-      ];
+        const bankColumns = [
+          { header: "Account Title", dataKey: "AccountTitle" },
+          { header: "Balance", dataKey: "Balance" },
+          { header: "Tag", dataKey: "Tag" },
+        ];
 
-      const cashRows = cashPositions.map((cash) => ({
-        AccountTitle: cash.AccountTitle,
-        Balance: Number(cash.BalanceAmount).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: cash.Tag,
-      }));
+        const bankRows = bankPositions.map((bank) => ({
+          AccountTitle: bank.AccountTitle,
+          Balance: Number(bank.BalanceAmount).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: bank.Tag,
+        }));
 
-      // Add total row
-      const totalCash = cashPositions.reduce(
-        (total, item) => total + Number(item.BalanceAmount || 0),
-        0
-      );
+        // Add total row
+        const totalBank = bankPositions.reduce(
+          (total, item) => total + Number(item.BalanceAmount || 0),
+          0
+        );
 
-      cashRows.push({
-        AccountTitle: "Total",
-        Balance: totalCash.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: totalCash >= 0 ? "Dr" : "Cr",
-      });
+        bankRows.push({
+          AccountTitle: "Total",
+          Balance: totalBank.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: totalBank >= 0 ? "Dr" : "Cr",
+        });
 
-      doc.autoTable({
-        startY: yPos,
-        head: [cashColumns.map((col) => col.header)],
-        body: cashRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Balance column
-          2: { halign: "center" }, // Center Tag column
-        },
-        // Make the total row bold
-        didParseCell: function (data) {
-          if (data.row.index === cashRows.length - 1) {
-            data.cell.styles.fontStyle = "bold";
-          }
-        },
-      });
+        doc.autoTable({
+          startY: yPos,
+          head: [bankColumns.map((col) => col.header)],
+          body: bankRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
+          theme: "grid",
+          styles: {
+            fontSize: 8,
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0.1,
+          },
+          headStyles: {
+            fillColor: [0, 0, 0],
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            1: { halign: "right" },
+            2: { halign: "center" },
+          },
+          didParseCell: function (data) {
+            if (data.row.index === bankRows.length - 1) {
+              data.cell.styles.fontStyle = "bold";
+            }
+          },
+        });
 
-      yPos = doc.lastAutoTable.finalY + 10;
-
-      // Add new page if not enough space
-      if (yPos > 200) {
-        doc.addPage();
-        yPos = 20;
+        yPos = doc.lastAutoTable.finalY + 10;
       }
-    }
 
-    // Export Receivable
-    if (receivableExport.length > 0) {
-      doc.text("Export Receivable", 14, yPos);
-      yPos += 5;
+      // Cash In Hands
+      if (cashPositions.length > 0) {
+        doc.text("Cash In Hands", 14, yPos);
+        yPos += 5;
 
-      const receiveExportColumns = [
-        { header: "Account Title", dataKey: "AccountTitle" },
-        { header: "Balance", dataKey: "Balance" },
-        { header: "Tag", dataKey: "Tag" },
-      ];
+        const cashColumns = [
+          { header: "Account Title", dataKey: "AccountTitle" },
+          { header: "Balance", dataKey: "Balance" },
+          { header: "Tag", dataKey: "Tag" },
+        ];
 
-      const receiveExportRows = receivableExport.map((item) => ({
-        AccountTitle: item.AccountTitle,
-        Balance: Number(item.BalanceAmount).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: item.Tag,
-      }));
+        const cashRows = cashPositions.map((cash) => ({
+          AccountTitle: cash.AccountTitle,
+          Balance: Number(cash.BalanceAmount).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: cash.Tag,
+        }));
 
-      // Add total row
-      const totalExport = receivableExport.reduce(
-        (total, item) => total + Number(item.BalanceAmount || 0),
-        0
-      );
+        // Add total row
+        const totalCash = cashPositions.reduce(
+          (total, item) => total + Number(item.BalanceAmount || 0),
+          0
+        );
 
-      receiveExportRows.push({
-        AccountTitle: "Total",
-        Balance: totalExport.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: totalExport >= 0 ? "Dr" : "Cr",
-      });
+        cashRows.push({
+          AccountTitle: "Total",
+          Balance: totalCash.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: totalCash >= 0 ? "Dr" : "Cr",
+        });
 
-      doc.autoTable({
-        startY: yPos,
-        head: [receiveExportColumns.map((col) => col.header)],
-        body: receiveExportRows.map((row) => [
-          row.AccountTitle,
-          row.Balance,
-          row.Tag,
-        ]),
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Balance column
-          2: { halign: "center" }, // Center Tag column
-        },
-        // Make the total row bold
-        didParseCell: function (data) {
-          if (data.row.index === receiveExportRows.length - 1) {
-            data.cell.styles.fontStyle = "bold";
-          }
-        },
-      });
+        doc.autoTable({
+          startY: yPos,
+          head: [cashColumns.map((col) => col.header)],
+          body: cashRows.map((row) => [row.AccountTitle, row.Balance, row.Tag]),
+          theme: "grid",
+          styles: {
+            fontSize: 8,
+            textColor: [0, 0, 0], // Pure black text
+            lineColor: [0, 0, 0], // Pure black lines/borders
+            lineWidth: 0.1, // Slightly thinner lines for better appearance
+          },
+          headStyles: {
+            fillColor: [0, 0, 0], // Pure black header background
+            textColor: [255, 255, 255], // White text for header
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            1: { halign: "right" }, // Right align Balance column
+            2: { halign: "center" }, // Center Tag column
+          },
+          // Make the total row bold
+          didParseCell: function (data) {
+            if (data.row.index === cashRows.length - 1) {
+              data.cell.styles.fontStyle = "bold";
+            }
+          },
+        });
 
-      yPos = doc.lastAutoTable.finalY + 10;
+        yPos = doc.lastAutoTable.finalY + 10;
 
-      // Add new page if not enough space
-      if (yPos > 200) {
-        doc.addPage();
-        yPos = 20;
-      }
-    }
-
-    // Local Receivable
-    if (receivableLocal.length > 0) {
-      doc.text("Local Receivable", 14, yPos);
-      yPos += 5;
-
-      const receiveLocalColumns = [
-        { header: "Account Title", dataKey: "AccountTitle" },
-        { header: "Balance", dataKey: "Balance" },
-        { header: "Tag", dataKey: "Tag" },
-      ];
-
-      const receiveLocalRows = receivableLocal.map((item) => ({
-        AccountTitle: item.AccountTitle,
-        Balance: Number(item.BalanceAmount).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: item.Tag,
-      }));
-
-      // Add total row
-      const totalLocal = receivableLocal.reduce(
-        (total, item) => total + Number(item.BalanceAmount || 0),
-        0
-      );
-
-      receiveLocalRows.push({
-        AccountTitle: "Total",
-        Balance: totalLocal.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-        }),
-        Tag: totalLocal >= 0 ? "Dr" : "Cr",
-      });
-
-      doc.autoTable({
-        startY: yPos,
-        head: [receiveLocalColumns.map((col) => col.header)],
-        body: receiveLocalRows.map((row) => [
-          row.AccountTitle,
-          row.Balance,
-          row.Tag,
-        ]),
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Balance column
-          2: { halign: "center" }, // Center Tag column
-        },
-        // Make the total row bold
-        didParseCell: function (data) {
-          if (data.row.index === receiveLocalRows.length - 1) {
-            data.cell.styles.fontStyle = "bold";
-          }
-        },
-      });
-
-      yPos = doc.lastAutoTable.finalY + 10;
-
-      // Add new page if not enough space
-      if (yPos > 200) {
-        doc.addPage();
-        yPos = 20;
-      }
-    }
-
-    // Traders Payable
-    if (tradersPayable?.length > 0) {
-      doc.text("Traders Payable", 14, yPos);
-      yPos += 5;
-
-      // Group traders by ParentAccountTitle
-      const groupedTradersPayable = {};
-      tradersPayable.forEach((item) => {
-        const parentTitle = item.ParentAccountTitle || "Other";
-        if (!groupedTradersPayable[parentTitle]) {
-          groupedTradersPayable[parentTitle] = [];
+        // Add new page if not enough space
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
         }
-        groupedTradersPayable[parentTitle].push(item);
-      });
+      }
 
-      const tradersColumns = [
-        { header: "Account Title", dataKey: "AccountTitle" },
-        { header: "Balance", dataKey: "Balance" },
-        { header: "Tag", dataKey: "Tag" },
-      ];
+      // Export Receivable
+      if (receivableExport.length > 0) {
+        doc.text("Export Receivable", 14, yPos);
+        yPos += 5;
 
-      const tradersRows = [];
-      // Track total row index for bold styling
-      let totalRowIndices = [];
-      let currentIndex = 0;
+        const receiveExportColumns = [
+          { header: "Account Title", dataKey: "AccountTitle" },
+          { header: "Balance", dataKey: "Balance" },
+          { header: "Tag", dataKey: "Tag" },
+        ];
 
-      // Add items with parent title as headers
-      Object.keys(groupedTradersPayable).forEach((parentTitle) => {
-        const items = groupedTradersPayable[parentTitle];
+        const receiveExportRows = receivableExport.map((item) => ({
+          AccountTitle: item.AccountTitle,
+          Balance: Number(item.BalanceAmount).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: item.Tag,
+        }));
 
-        // Add parent title row
-        tradersRows.push([`${parentTitle} (Group)`, "", ""]);
-        currentIndex++;
+        // Add total row
+        const totalExport = receivableExport.reduce(
+          (total, item) => total + Number(item.BalanceAmount || 0),
+          0
+        );
 
-        // Add child items
-        items.forEach((item) => {
+        receiveExportRows.push({
+          AccountTitle: "Total",
+          Balance: totalExport.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: totalExport >= 0 ? "Dr" : "Cr",
+        });
+
+        doc.autoTable({
+          startY: yPos,
+          head: [receiveExportColumns.map((col) => col.header)],
+          body: receiveExportRows.map((row) => [
+            row.AccountTitle,
+            row.Balance,
+            row.Tag,
+          ]),
+          theme: "grid",
+          styles: {
+            fontSize: 8,
+            textColor: [0, 0, 0], // Pure black text
+            lineColor: [0, 0, 0], // Pure black lines/borders
+            lineWidth: 0.1, // Slightly thinner lines for better appearance
+          },
+          headStyles: {
+            fillColor: [0, 0, 0], // Pure black header background
+            textColor: [255, 255, 255], // White text for header
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            1: { halign: "right" }, // Right align Balance column
+            2: { halign: "center" }, // Center Tag column
+          },
+          // Make the total row bold
+          didParseCell: function (data) {
+            if (data.row.index === receiveExportRows.length - 1) {
+              data.cell.styles.fontStyle = "bold";
+            }
+          },
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+
+        // Add new page if not enough space
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
+        }
+      }
+
+      // Local Receivable
+      if (receivableLocal.length > 0) {
+        doc.text("Local Receivable", 14, yPos);
+        yPos += 5;
+
+        const receiveLocalColumns = [
+          { header: "Account Title", dataKey: "AccountTitle" },
+          { header: "Balance", dataKey: "Balance" },
+          { header: "Tag", dataKey: "Tag" },
+        ];
+
+        const receiveLocalRows = receivableLocal.map((item) => ({
+          AccountTitle: item.AccountTitle,
+          Balance: Number(item.BalanceAmount).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: item.Tag,
+        }));
+
+        // Add total row
+        const totalLocal = receivableLocal.reduce(
+          (total, item) => total + Number(item.BalanceAmount || 0),
+          0
+        );
+
+        receiveLocalRows.push({
+          AccountTitle: "Total",
+          Balance: totalLocal.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+          }),
+          Tag: totalLocal >= 0 ? "Dr" : "Cr",
+        });
+
+        doc.autoTable({
+          startY: yPos,
+          head: [receiveLocalColumns.map((col) => col.header)],
+          body: receiveLocalRows.map((row) => [
+            row.AccountTitle,
+            row.Balance,
+            row.Tag,
+          ]),
+          theme: "grid",
+          styles: {
+            fontSize: 8,
+            textColor: [0, 0, 0], // Pure black text
+            lineColor: [0, 0, 0], // Pure black lines/borders
+            lineWidth: 0.1, // Slightly thinner lines for better appearance
+          },
+          headStyles: {
+            fillColor: [0, 0, 0], // Pure black header background
+            textColor: [255, 255, 255], // White text for header
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            1: { halign: "right" }, // Right align Balance column
+            2: { halign: "center" }, // Center Tag column
+          },
+          // Make the total row bold
+          didParseCell: function (data) {
+            if (data.row.index === receiveLocalRows.length - 1) {
+              data.cell.styles.fontStyle = "bold";
+            }
+          },
+        });
+
+        yPos = doc.lastAutoTable.finalY + 10;
+
+        // Add new page if not enough space
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
+        }
+      }
+
+      // Traders Payable
+      if (tradersPayable?.length > 0) {
+        doc.text("Traders Payable", 14, yPos);
+        yPos += 5;
+
+        // Group traders by ParentAccountTitle
+        const groupedTradersPayable = {};
+        tradersPayable.forEach((item) => {
+          const parentTitle = item.ParentAccountTitle || "Other";
+          if (!groupedTradersPayable[parentTitle]) {
+            groupedTradersPayable[parentTitle] = [];
+          }
+          groupedTradersPayable[parentTitle].push(item);
+        });
+
+        const tradersColumns = [
+          { header: "Account Title", dataKey: "AccountTitle" },
+          { header: "Balance", dataKey: "Balance" },
+          { header: "Tag", dataKey: "Tag" },
+        ];
+
+        const tradersRows = [];
+        // Track total row index for bold styling
+        let totalRowIndices = [];
+        let currentIndex = 0;
+
+        // Add items with parent title as headers
+        Object.keys(groupedTradersPayable).forEach((parentTitle) => {
+          const items = groupedTradersPayable[parentTitle];
+
+          // Add parent title row
+          tradersRows.push([`${parentTitle} (Group)`, "", ""]);
+          currentIndex++;
+
+          // Add child items
+          items.forEach((item) => {
+            tradersRows.push([
+              `  ${item.AccountTitle}`,
+              Number(item.BalanceAmount).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              }),
+              item.Tag,
+            ]);
+            currentIndex++;
+          });
+
+          // Calculate subtotal
+          const subtotal = items.reduce(
+            (total, item) => total + Number(item.BalanceAmount || 0),
+            0
+          );
+
           tradersRows.push([
-            `  ${item.AccountTitle}`,
-            Number(item.BalanceAmount).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-            }),
-            item.Tag,
+            "  Subtotal",
+            subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+            subtotal >= 0 ? "Cr" : "Dr",
           ]);
+          totalRowIndices.push(currentIndex);
           currentIndex++;
         });
 
-        // Calculate subtotal
-        const subtotal = items.reduce(
+        // Add total row
+        const totalTraders = tradersPayable.reduce(
           (total, item) => total + Number(item.BalanceAmount || 0),
           0
         );
 
         tradersRows.push([
-          "  Subtotal",
-          subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
-          subtotal >= 0 ? "Cr" : "Dr",
+          "Total",
+          totalTraders.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+          totalTraders <= 0 ? "Dr" : "Cr",
         ]);
         totalRowIndices.push(currentIndex);
-        currentIndex++;
-      });
 
-      // Add total row
-      const totalTraders = tradersPayable.reduce(
-        (total, item) => total + Number(item.BalanceAmount || 0),
-        0
-      );
+        doc.autoTable({
+          startY: yPos,
+          head: [tradersColumns.map((col) => col.header)],
+          body: tradersRows,
+          theme: "grid",
+          styles: {
+            fontSize: 8,
+            textColor: [0, 0, 0], // Pure black text
+            lineColor: [0, 0, 0], // Pure black lines/borders
+            lineWidth: 0.1, // Slightly thinner lines for better appearance
+          },
+          headStyles: {
+            fillColor: [0, 0, 0], // Pure black header background
+            textColor: [255, 255, 255], // White text for header
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            1: { halign: "right" }, // Right align Balance column
+            2: { halign: "center" }, // Center Tag column
+          },
+          // Make the subtotal and total rows bold
+          didParseCell: function (data) {
+            if (
+              totalRowIndices.includes(data.row.index) ||
+              data.row.index === tradersRows.length - 1
+            ) {
+              data.cell.styles.fontStyle = "bold";
+            }
 
-      tradersRows.push([
-        "Total",
-        totalTraders.toLocaleString(undefined, { minimumFractionDigits: 2 }),
-        totalTraders <= 0 ? "Dr" : "Cr",
-      ]);
-      totalRowIndices.push(currentIndex);
+            // Style for parent title rows
+            if (
+              data.row.raw[0].includes("(Group)") &&
+              data.section === "body"
+            ) {
+              data.cell.styles.fontStyle = "bold";
+              data.cell.styles.fillColor = [0, 0, 0]; // Pure black background for group headers
+              data.cell.styles.textColor = [255, 255, 255]; // White text for group headers
+            }
+          },
+        });
 
-      doc.autoTable({
-        startY: yPos,
-        head: [tradersColumns.map((col) => col.header)],
-        body: tradersRows,
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Balance column
-          2: { halign: "center" }, // Center Tag column
-        },
-        // Make the subtotal and total rows bold
-        didParseCell: function (data) {
-          if (
-            totalRowIndices.includes(data.row.index) ||
-            data.row.index === tradersRows.length - 1
-          ) {
-            data.cell.styles.fontStyle = "bold";
-          }
+        yPos = doc.lastAutoTable.finalY + 10;
 
-          // Style for parent title rows
-          if (data.row.raw[0].includes("(Group)") && data.section === "body") {
-            data.cell.styles.fontStyle = "bold";
-            data.cell.styles.fillColor = [0, 0, 0]; // Pure black background for group headers
-            data.cell.styles.textColor = [255, 255, 255]; // White text for group headers
-          }
-        },
-      });
-
-      yPos = doc.lastAutoTable.finalY + 10;
-
-      // Add new page if not enough space
-      if (yPos > 200) {
-        doc.addPage();
-        yPos = 20;
-      }
-    }
-
-    // Loans Payable
-    if (loansPayable?.length > 0) {
-      doc.text("Loans Payable", 14, yPos);
-      yPos += 5;
-
-      // Group loans by ParentAccountTitle
-      const groupedLoansPayable = {};
-      loansPayable.forEach((item) => {
-        const parentTitle = item.ParentAccountTitle || "Other";
-        if (!groupedLoansPayable[parentTitle]) {
-          groupedLoansPayable[parentTitle] = [];
+        // Add new page if not enough space
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
         }
-        groupedLoansPayable[parentTitle].push(item);
-      });
+      }
 
-      const loansColumns = [
-        { header: "Account Title", dataKey: "AccountTitle" },
-        { header: "Balance", dataKey: "Balance" },
-        { header: "Tag", dataKey: "Tag" },
-      ];
+      // Loans Payable
+      if (loansPayable?.length > 0) {
+        doc.text("Loans Payable", 14, yPos);
+        yPos += 5;
 
-      const loansRows = [];
-      // Track total row index for bold styling
-      let totalRowIndices = [];
-      let currentIndex = 0;
+        // Group loans by ParentAccountTitle
+        const groupedLoansPayable = {};
+        loansPayable.forEach((item) => {
+          const parentTitle = item.ParentAccountTitle || "Other";
+          if (!groupedLoansPayable[parentTitle]) {
+            groupedLoansPayable[parentTitle] = [];
+          }
+          groupedLoansPayable[parentTitle].push(item);
+        });
 
-      // Add items with parent title as headers
-      Object.keys(groupedLoansPayable).forEach((parentTitle) => {
-        const items = groupedLoansPayable[parentTitle];
+        const loansColumns = [
+          { header: "Account Title", dataKey: "AccountTitle" },
+          { header: "Balance", dataKey: "Balance" },
+          { header: "Tag", dataKey: "Tag" },
+        ];
 
-        // Add parent title row
-        loansRows.push([`${parentTitle} (Group)`, "", ""]);
-        currentIndex++;
+        const loansRows = [];
+        // Track total row index for bold styling
+        let totalRowIndices = [];
+        let currentIndex = 0;
 
-        // Add child items
-        items.forEach((item) => {
+        // Add items with parent title as headers
+        Object.keys(groupedLoansPayable).forEach((parentTitle) => {
+          const items = groupedLoansPayable[parentTitle];
+
+          // Add parent title row
+          loansRows.push([`${parentTitle} (Group)`, "", ""]);
+          currentIndex++;
+
+          // Add child items
+          items.forEach((item) => {
+            loansRows.push([
+              `  ${item.AccountTitle}`,
+              Number(item.BalanceAmount).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              }),
+              item.Tag,
+            ]);
+            currentIndex++;
+          });
+
+          // Calculate subtotal
+          const subtotal = items.reduce(
+            (total, item) => total + Number(item.BalanceAmount || 0),
+            0
+          );
+
           loansRows.push([
-            `  ${item.AccountTitle}`,
-            Number(item.BalanceAmount).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-            }),
-            item.Tag,
+            "  Subtotal",
+            subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+            subtotal >= 0 ? "Cr" : "Dr",
           ]);
+          totalRowIndices.push(currentIndex);
           currentIndex++;
         });
 
-        // Calculate subtotal
-        const subtotal = items.reduce(
+        // Add total row
+        const totalLoans = loansPayable.reduce(
           (total, item) => total + Number(item.BalanceAmount || 0),
           0
         );
 
         loansRows.push([
-          "  Subtotal",
-          subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }),
-          subtotal >= 0 ? "Cr" : "Dr",
+          "Total",
+          totalLoans.toLocaleString(undefined, { minimumFractionDigits: 2 }),
+          totalLoans <= 0 ? "Dr" : "Cr",
         ]);
         totalRowIndices.push(currentIndex);
-        currentIndex++;
-      });
 
-      // Add total row
-      const totalLoans = loansPayable.reduce(
-        (total, item) => total + Number(item.BalanceAmount || 0),
-        0
-      );
+        doc.autoTable({
+          startY: yPos,
+          head: [loansColumns.map((col) => col.header)],
+          body: loansRows,
+          theme: "grid",
+          styles: {
+            fontSize: 8,
+            textColor: [0, 0, 0], // Pure black text
+            lineColor: [0, 0, 0], // Pure black lines/borders
+            lineWidth: 0.1, // Slightly thinner lines for better appearance
+          },
+          headStyles: {
+            fillColor: [0, 0, 0], // Pure black header background
+            textColor: [255, 255, 255], // White text for header
+            fontStyle: "bold",
+          },
+          columnStyles: {
+            1: { halign: "right" }, // Right align Balance column
+            2: { halign: "center" }, // Center Tag column
+          },
+          // Make the subtotal and total rows bold
+          didParseCell: function (data) {
+            if (
+              totalRowIndices.includes(data.row.index) ||
+              data.row.index === loansRows.length - 1
+            ) {
+              data.cell.styles.fontStyle = "bold";
+            }
 
-      loansRows.push([
-        "Total",
-        totalLoans.toLocaleString(undefined, { minimumFractionDigits: 2 }),
-        totalLoans <= 0 ? "Dr" : "Cr",
-      ]);
-      totalRowIndices.push(currentIndex);
+            // Style for parent title rows
+            if (
+              data.row.raw[0].includes("(Group)") &&
+              data.section === "body"
+            ) {
+              data.cell.styles.fontStyle = "bold";
+              data.cell.styles.fillColor = [0, 0, 0]; // Pure black background for group headers
+              data.cell.styles.textColor = [255, 255, 255]; // White text for group headers
+            }
+          },
+        });
 
-      doc.autoTable({
-        startY: yPos,
-        head: [loansColumns.map((col) => col.header)],
-        body: loansRows,
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Balance column
-          2: { halign: "center" }, // Center Tag column
-        },
-        // Make the subtotal and total rows bold
-        didParseCell: function (data) {
-          if (
-            totalRowIndices.includes(data.row.index) ||
-            data.row.index === loansRows.length - 1
-          ) {
-            data.cell.styles.fontStyle = "bold";
-          }
+        yPos = doc.lastAutoTable.finalY + 10;
 
-          // Style for parent title rows
-          if (data.row.raw[0].includes("(Group)") && data.section === "body") {
-            data.cell.styles.fontStyle = "bold";
-            data.cell.styles.fillColor = [0, 0, 0]; // Pure black background for group headers
-            data.cell.styles.textColor = [255, 255, 255]; // White text for group headers
-          }
-        },
-      });
-
-      yPos = doc.lastAutoTable.finalY + 10;
-
-      // Add new page if not enough space
-      if (yPos > 200) {
-        doc.addPage();
-        yPos = 20;
+        // Add new page if not enough space
+        if (yPos > 200) {
+          doc.addPage();
+          yPos = 20;
+        }
       }
-    }
 
-    // Order Details
-    if (orderDetails?.length > 0) {
-      doc.text("Order Details", 14, yPos);
-      yPos += 5;
-
-      const orderColumns = [
-        { header: "Month", dataKey: "Month" },
-        { header: "Order Qty", dataKey: "OrderQty" },
-        { header: "Cutting Qty", dataKey: "CuttingQty" },
-        { header: "Shipped Qty", dataKey: "ShippedQty" },
-        { header: "Excess/Short", dataKey: "ExcessOrShort" },
-        { header: "Short/Access %", dataKey: "ShortOrAccessInPercentage" },
-      ];
-
-      const orderRows = orderDetails.map((item) => [
-        item.Month,
-        Number(item.OrderQty).toLocaleString(),
-        Number(item.CuttingQty).toLocaleString(),
-        Number(item.ShippedQty).toLocaleString(),
-        Number(item.ExcessOrShort).toLocaleString(),
-        item.ShortOrAccessInPercentage,
-      ]);
-
-      doc.autoTable({
-        startY: yPos,
-        head: [orderColumns.map((col) => col.header)],
-        body: orderRows,
-        theme: "grid",
-        styles: {
-          fontSize: 8,
-          textColor: [0, 0, 0], // Pure black text
-          lineColor: [0, 0, 0], // Pure black lines/borders
-          lineWidth: 0.1, // Slightly thinner lines for better appearance
-        },
-        headStyles: {
-          fillColor: [0, 0, 0], // Pure black header background
-          textColor: [255, 255, 255], // White text for header
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          1: { halign: "right" }, // Right align Order Qty
-          2: { halign: "right" }, // Right align Cutting Qty
-          3: { halign: "right" }, // Right align Shipped Qty
-          4: { halign: "right" }, // Right align Excess/Short
-          5: { halign: "right" }, // Right align Short/Access %
-        },
-      });
-    }
-
-    // Save PDF
-    doc.save(
-      `${companyName.replace(/\s+/g, "_")}_Dashboard_${
+      const filename = `${companyName.replace(/\s+/g, "_")}_Dashboard_${
         new Date().toISOString().split("T")[0]
-      }.pdf`
-    );
+      }.pdf`;
+
+      if (forEmail) {
+        // For email: convert to base64
+        const pdfBuffer = btoa(doc.output("raw"));
+
+        const response = await fetch("/api/email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            pdfBuffer,
+            filename,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || "Failed to send email");
+        }
+
+        alert("Email sent successfully!");
+      } else {
+        // For download: save as file
+        doc.save(filename);
+      }
+    } catch (error) {
+      console.error("Error in generatePDF:", error);
+      alert("Failed to " + (forEmail ? "send email" : "generate PDF"));
+    }
+  };
+
+  // Function to schedule email - simplified to send immediately
+  const scheduleEmail = async () => {
+    try {
+      await generatePDF(true);
+    } catch (error) {
+      console.error("Error in scheduleEmail:", error);
+      alert("Failed to send email");
+    }
+  };
+
+  // Function to handle scheduling
+  const handleDailySchedule = async () => {
+    try {
+      // Get client's timezone
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      if (isScheduleActive) {
+        // Delete existing schedule
+        const response = await fetch("/api/schedule", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ jobId: scheduledJobId }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete schedule");
+        }
+
+        setIsScheduleActive(false);
+        setScheduledJobId(null);
+        setScheduledTime(null);
+        alert("Schedule removed");
+      } else {
+        // Create new schedule
+        const response = await fetch("/api/schedule", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ timezone }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create schedule");
+        }
+
+        const data = await response.json();
+        setScheduledJobId(data.jobId);
+        setIsScheduleActive(true);
+        setScheduledTime(data.scheduledTime);
+        alert(`Report scheduled for ${data.scheduledTime}`);
+      }
+    } catch (error) {
+      console.error("Error managing schedule:", error);
+      alert("Failed to manage schedule");
+    }
   };
 
   return (
     <>
       <div className="px-6 md:py-6 py-20">
         {/* PDF Export Button */}
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 gap-4">
           <button
-            onClick={generatePDF}
+            onClick={() => generatePDF(false)}
             disabled={isLoading}
             className="flex items-center gap-2 px-2 py-1 text-white rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             style={{ backgroundColor: currentColor }}
@@ -803,6 +899,11 @@ const Home = () => {
             Export to PDF
           </button>
         </div>
+        {nextScheduledTime && (
+          <div className="text-sm text-gray-600 mb-4 text-right">
+            Next report scheduled for: {nextScheduledTime} (Your local time)
+          </div>
+        )}
 
         {/* Positions */}
         <div
