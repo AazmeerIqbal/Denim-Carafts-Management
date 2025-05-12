@@ -24,6 +24,12 @@ export async function POST(req) {
       },
     });
 
+    // Make sure the PDF content is properly handled
+    const finalFilename =
+      filename ||
+      `Dashboard_Report_${new Date().toISOString().split("T")[0]}.pdf`;
+    console.log(`Preparing to send email with attachment: ${finalFilename}`);
+
     // Email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -32,9 +38,7 @@ export async function POST(req) {
       text: "Please find attached the dashboard report.",
       attachments: [
         {
-          filename:
-            filename ||
-            `Dashboard_Report_${new Date().toISOString().split("T")[0]}.pdf`,
+          filename: finalFilename,
           content: pdfBuffer,
           encoding: "base64",
           contentType: "application/pdf",

@@ -138,13 +138,26 @@ const Home = () => {
       }
 
       const data = await response.json();
-      setBankPositions(data.bankPositions);
-      setCashPositions(data.cashPositions);
-      setReceivableExport(data.receivableExport);
-      setreceivableLocal(data.receivableLocal);
-      settradersPayable(data.tradersPayable);
-      setloansPayable(data.loansPayable);
-      setorderDetails(data.orderDetails);
+
+      // Set all states first
+      await Promise.all([
+        setBankPositions(data.bankPositions),
+        setCashPositions(data.cashPositions),
+        setReceivableExport(data.receivableExport),
+        setreceivableLocal(data.receivableLocal),
+        settradersPayable(data.tradersPayable),
+        setloansPayable(data.loansPayable),
+        setorderDetails(data.orderDetails),
+      ]);
+
+      // After all states are set, initialize schedule
+      await initializeSchedule();
+
+      // Check schedule status every minute
+      const intervalId = setInterval(checkScheduleStatus, 60000);
+
+      // Cleanup interval on unmount
+      return () => clearInterval(intervalId);
     } catch (error) {
       console.error("Failed to fetch cash and bank positions:", error);
     } finally {
@@ -195,13 +208,6 @@ const Home = () => {
   useEffect(() => {
     // getFabricPostions();
     getCashAndBankPositions();
-    initializeSchedule(); // Initialize schedule when component mounts
-
-    // Check schedule status every minute
-    const intervalId = setInterval(checkScheduleStatus, 60000);
-
-    // Cleanup interval on unmount
-    return () => clearInterval(intervalId);
   }, [session?.user?.id]);
 
   const cards = [
@@ -794,16 +800,18 @@ const Home = () => {
       }.pdf`;
 
       if (forEmail) {
-        // For email: convert to base64
-        const pdfBuffer = btoa(doc.output("raw"));
+        // For email: generate base64 PDF directly to ensure compatibility
+        // Use jsPDF's built-in base64 output
+        const base64PDF = doc.output("datauristring").split(",")[1];
 
+        console.log("Sending PDF via email...");
         const response = await fetch("/api/email", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            pdfBuffer,
+            pdfBuffer: base64PDF,
             filename,
           }),
         });
