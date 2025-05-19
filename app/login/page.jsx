@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FaSignInAlt } from "react-icons/fa";
+import { FaSignInAlt, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { encrypt } from "@/utils/encryption";
@@ -26,6 +26,7 @@ const Login = () => {
     initialValues: {
       UserName: "",
       Password: "",
+      showPassword: false,
     },
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
@@ -92,8 +93,24 @@ const Login = () => {
                       onBlur={formik.handleBlur}
                       placeholder="Password"
                     />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-7 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      onClick={() =>
+                        formik.setFieldValue(
+                          "showPassword",
+                          !formik.values.showPassword
+                        )
+                      }
+                    >
+                      {formik.values.showPassword ? (
+                        <FaEyeSlash size={20} />
+                      ) : (
+                        <FaEye size={20} />
+                      )}
+                    </button>
                     {formik.touched.Password && formik.errors.Password ? (
-                      <div className="text-red-500 text-xs mt-1">
+                      <div className="text-red-500 text-xs mt-2">
                         {formik.errors.Password}
                       </div>
                     ) : null}

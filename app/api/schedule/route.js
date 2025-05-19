@@ -19,7 +19,7 @@ function createDailyJob(timezone) {
   console.log(`Setting up daily 9 AM job for timezone: ${timezone}`);
 
   const job = cron.schedule(
-    "20 16 * * *", // Run at 2:5 PM every day in the specified timezone
+    "0 9 * * *", // Run at 9 am every day in the specified timezone
     async () => {
       try {
         console.log(
