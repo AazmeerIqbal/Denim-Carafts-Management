@@ -21,7 +21,7 @@ import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImp
 import BankAndCashPosition from "@/components/Dashboard/BandAndCashPosition";
 import Receivable from "@/components/Dashboard/Receivable";
 import PayableAndLoan from "@/components/Dashboard/PayableAndLoan";
-import OrderDetails from "@/components/Dashboard/OrderDetails";
+import OrderDetails from "@/components/Reports/ShipmentDetails";
 import { GoArrowUpRight } from "react-icons/go";
 import { BorderColor } from "@mui/icons-material";
 
@@ -38,7 +38,6 @@ const Home = () => {
   const [receivableLocal, setreceivableLocal] = useState([]);
   const [tradersPayable, settradersPayable] = useState([]);
   const [loansPayable, setloansPayable] = useState([]);
-  const [orderDetails, setorderDetails] = useState([]);
 
   console.log("sessionsss:", session?.user);
 
@@ -147,7 +146,6 @@ const Home = () => {
         setreceivableLocal(data.receivableLocal),
         settradersPayable(data.tradersPayable),
         setloansPayable(data.loansPayable),
-        setorderDetails(data.orderDetails),
       ]);
 
       // After all states are set, initialize schedule
@@ -956,10 +954,6 @@ const Home = () => {
             tradersPayable={tradersPayable}
             loansPayable={loansPayable}
           />
-        </div>
-
-        <div class=" mt-8">
-          <OrderDetails isLoading={isLoading} orderDetails={orderDetails} />
         </div>
 
         {/* Chart Component */}

@@ -3,14 +3,14 @@ import { Loader, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GiRolledCloth } from "react-icons/gi";
 
-const OrderDetails = ({ isLoading, orderDetails }) => {
+const ShipmentDetails = ({ isLoading, shipmentDetails }) => {
   const [collapsed, setCollapsed] = useState(true);
   return (
     <div className="w-full p-4 sm:p-5 drop-shadow-2xl bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-center justify-between">
         <h5 className="text-lg font-bold leading-none text-gray-900 dark:text-white flex gap-2">
           <GiRolledCloth />
-          Order Details
+          Shipment Details
         </h5>
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -32,7 +32,7 @@ const OrderDetails = ({ isLoading, orderDetails }) => {
               <div className="flex justify-center items-center py-10">
                 <Loader rotate={true} className="dark:text-white" />
               </div>
-            ) : orderDetails && orderDetails.length > 0 ? (
+            ) : shipmentDetails && shipmentDetails.length > 0 ? (
               <div className="relative overflow-x-auto mt-4">
                 <div className="max-w-full overflow-x-auto">
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700 md:text-xs text-[0.50rem] table-fixed">
@@ -49,7 +49,7 @@ const OrderDetails = ({ isLoading, orderDetails }) => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {orderDetails.map((item, index) => (
+                      {shipmentDetails.map((item, index) => (
                         <tr
                           key={index}
                           className="text-gray-900 dark:text-white"
@@ -90,4 +90,4 @@ const OrderDetails = ({ isLoading, orderDetails }) => {
   );
 };
 
-export default OrderDetails;
+export default ShipmentDetails;

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { MdOutlineCancel } from "react-icons/md";
-import { GiWool } from "react-icons/gi";
+import { GiRolledCloth, GiWool } from "react-icons/gi";
 import Link from "next/link";
 import { useStateContext } from "@/components/contexts/ContextProvider";
 import { useSession } from "next-auth/react";
@@ -108,6 +108,22 @@ const Sidebar = () => {
               <p className="text-gray-400 dark:text-gray-400 m-3 mt-4 uppercase">
                 Reports
               </p>
+
+              {/* Fabric List */}
+              <Link
+                href="/shipmentDetails"
+                onClick={handleCloseSideBar}
+                style={{
+                  backgroundColor:
+                    pathname === "/shipmentDetails" ? currentColor : "",
+                }}
+                className={
+                  pathname === "/shipmentDetails" ? activeLink : normalLink
+                }
+              >
+                <GiRolledCloth />
+                <span className="capitalize">Shipment Details</span>
+              </Link>
 
               {/* Fabric List */}
               <Link
