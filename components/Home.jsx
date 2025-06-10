@@ -5,6 +5,10 @@ import { FaCalendarDays } from "react-icons/fa6";
 import { FaUsers } from "react-icons/fa";
 import { GiWool } from "react-icons/gi";
 import { MdManageAccounts } from "react-icons/md";
+import { FaFilePdf } from "react-icons/fa";
+import { GoArrowUpRight } from "react-icons/go";
+import { IoMdClose } from "react-icons/io";
+import { FaChartLine, FaMoneyBillWave, FaExchangeAlt } from "react-icons/fa";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -14,7 +18,7 @@ import FabricReport from "@/components/Reports/FabricList";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { FaFilePdf } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
 
 import PayableSummeryCharLoad from "@/components/Charts/payableSummery/PayableSummeryCharLoad";
 import PayableSummeryImportChartLoad from "@/components/Charts/payableSummeryImport/PayableSummeryImportChartLoad";
@@ -22,8 +26,139 @@ import BankAndCashPosition from "@/components/Dashboard/BandAndCashPosition";
 import Receivable from "@/components/Dashboard/Receivable";
 import PayableAndLoan from "@/components/Dashboard/PayableAndLoan";
 import OrderDetails from "@/components/Reports/ShipmentDetails";
-import { GoArrowUpRight } from "react-icons/go";
 import { BorderColor } from "@mui/icons-material";
+
+// Enhanced Popup Component with Framer Motion
+const DashboardPopup = ({ isOpen, onClose, title, children }) => {
+  // Animation variants
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } },
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+        duration: 0.4,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.8,
+      y: 20,
+      transition: { duration: 0.3 },
+    },
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          variants={overlayVariants}
+          onClick={onClose}
+        >
+          <motion.div
+            className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto shadow-xl"
+            variants={contentVariants}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+          >
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+              <motion.h2
+                className="text-xl font-semibold dark:text-white"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
+              >
+                {title}
+              </motion.h2>
+              <motion.button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <IoMdClose size={24} />
+              </motion.button>
+            </div>
+            <motion.div
+              className="p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+            >
+              <div className="space-y-4">
+                {children}
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// Enhanced Dashboard Button Component with Framer Motion
+const DashboardButton = ({ title, description, icon, onClick, color }) => {
+  const lightColor = chroma(color).brighten(1.5).hex();
+  const darkColor = chroma(color).darken(0.5).hex();
+
+  return (
+    <motion.button
+      onClick={onClick}
+      className="p-6 rounded-xl shadow-lg transition-all duration-300 flex flex-col items-center justify-center text-center w-full h-full"
+      style={{
+        background: `linear-gradient(135deg, ${lightColor}, ${darkColor})`,
+        color:
+          chroma.contrast(darkColor, "#ffffff") > 4.5 ? "#ffffff" : "#000000",
+      }}
+      whileHover={{
+        scale: 1.05,
+        boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)",
+      }}
+      whileTap={{ scale: 0.98 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <motion.div
+        className="text-4xl mb-4"
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
+      >
+        {icon}
+      </motion.div>
+      <motion.h3
+        className="text-xl font-bold mb-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.3 }}
+      >
+        {title}
+      </motion.h3>
+      <motion.p
+        className="text-sm opacity-90"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.3 }}
+      >
+        {description}
+      </motion.p>
+    </motion.button>
+  );
+};
 
 const Home = () => {
   const { data: session } = useSession();
@@ -39,12 +174,14 @@ const Home = () => {
   const [tradersPayable, settradersPayable] = useState([]);
   const [loansPayable, setloansPayable] = useState([]);
 
-  console.log("sessionsss:", session?.user);
-
   const [isLoading, setIsLoading] = useState(true);
   const { currentColor } = useStateContext();
   const [listDisplay, setListDisplay] = useState(false);
   const [listData, setListData] = useState(false);
+
+  // Popup states
+  const [activePopup, setActivePopup] = useState(null);
+  const [popupTitle, setPopupTitle] = useState("");
 
   const lightColor = chroma(currentColor).brighten(1).hex(); // Lighter shade
   const darkColor = chroma(currentColor).darken(1.5).hex(); // Darker shade
@@ -57,11 +194,8 @@ const Home = () => {
   // Add new state for scheduling
   const [scheduledTime, setScheduledTime] = useState(null);
   const [emailScheduled, setEmailScheduled] = useState(false);
-
-  // Add these state variables at the top with other states
   const [scheduledJobId, setScheduledJobId] = useState(null);
   const [isScheduleActive, setIsScheduleActive] = useState(false);
-
   const [nextScheduledTime, setNextScheduledTime] = useState(null);
 
   const getFabricPostions = async () => {
@@ -208,24 +342,60 @@ const Home = () => {
     getCashAndBankPositions();
   }, [session?.user?.id]);
 
-  const cards = [
+  // Function to open popup
+  const openPopup = (popupType, title) => {
+    setActivePopup(popupType);
+    setPopupTitle(title);
+  };
+
+  // Function to close popup
+  const closePopup = () => {
+    setActivePopup(null);
+  };
+
+  // Dashboard buttons configuration
+  const dashboardButtons = [
+    {
+      title: "Bank & Cash",
+      description: "View bank and cash positions",
+      icon: <FaMoneyBillWave />,
+      popupType: "bankCash",
+      color: "#4CAF50",
+    },
+    {
+      title: "Receivables",
+      description: "Manage receivables",
+      icon: <FaExchangeAlt />,
+      popupType: "receivables",
+      color: "#2196F3",
+    },
+    {
+      title: "Payables & Loans",
+      description: "View payables and loans",
+      icon: <FaChartLine />,
+      popupType: "payables",
+      color: "#FF9800",
+    },
     {
       title: "Calendar",
       description: "Manage your schedule",
-      href: "/calendar",
       icon: <FaCalendarDays />,
+      href: "/calendar",
+      color: "#9C27B0",
     },
     {
       title: "Users",
-      description: "Manage users ",
-      href: "/users",
+      description: "Manage users",
       icon: <FaUsers />,
+      href: "/users",
+      color: "#E91E63",
     },
     {
       title: "Account",
       description: "View and edit your profile",
-      href: "/myProfile",
       icon: <MdManageAccounts />,
+      href: "/myProfile",
+      color: "#607D8B",
     },
   ];
 
@@ -895,84 +1065,104 @@ const Home = () => {
       <div className="px-6 md:py-6 py-20">
         {/* PDF Export Button */}
         <div className="flex justify-end mb-4 gap-4">
-          <button
+          <motion.button
             onClick={() => generatePDF(false)}
             disabled={isLoading}
             className="flex items-center gap-2 px-2 py-1 text-white rounded-md shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             style={{ backgroundColor: currentColor }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <FaFilePdf className="text-lg" />
             Export to PDF
-          </button>
+          </motion.button>
         </div>
         {nextScheduledTime && (
-          <div className="text-sm text-gray-600 mb-4 text-right">
+          <motion.div
+            className="text-sm text-gray-600 mb-4 text-right"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             Next report scheduled for: {nextScheduledTime} (Your local time)
-          </div>
+          </motion.div>
         )}
 
-        {/* Positions */}
-        <div
-          class="grid gap-2
-         grid-cols-1 
-         sm:grid-cols-2 
-         md:grid-cols-3 
-         lg:grid-cols-4"
+        {/* Dashboard Buttons */}
+        <motion.div
+          className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 mb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          <BankAndCashPosition
-            isLoading={isLoading}
-            bankPositions={bankPositions}
-            cashPositions={cashPositions}
-          />
-        </div>
-
-        {/* Receivable */}
-        <div
-          class="grid gap-2
-         grid-cols-1 
-         sm:grid-cols-2 
-         md:grid-cols-3 
-         lg:grid-cols-4 mt-8"
-        >
-          <Receivable
-            isLoading={isLoading}
-            receivableExport={receivableExport}
-            receivableLocal={receivableLocal}
-          />
-        </div>
-
-        {/* Payable and Loan */}
-        <div
-          class="grid gap-2
-         grid-cols-1 
-         sm:grid-cols-2 
-         md:grid-cols-3 
-         lg:grid-cols-4 mt-8"
-        >
-          <PayableAndLoan
-            isLoading={isLoading}
-            tradersPayable={tradersPayable}
-            loansPayable={loansPayable}
-          />
-        </div>
-
-        {/* Chart Component */}
-        {/* <div className="mt-2 flex justify-between mb-6 md:mt-8">
-          <div className="group md:mb-0  w-full rounded-lg bg-[rgb(255,255,255)] dark:bg-gray-800 dark:border-gray-700  transition relative duration-300 drop-shadow-2xl h-[80%]">
-            <h1 className="dark:text-white text-black text-2xl my-5 ml-4">
-              Payable Summery
-            </h1>
-            <Link href="/payableSummary">
-              <div className="absolute top-5 right-3 text-xl dark:bg-white dark:text-black bg-[#3f3d3d] text-white p-1 cursor cursor-pointer rounded-md">
-                <GoArrowUpRight />
-              </div>
-            </Link>
-            <div className="mx-auto">
-              <PayableSummeryCharLoad />
-            </div>
-          </div>
-        </div> */}
+          {dashboardButtons.map((button, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="h-full"
+            >
+              {button.href ? (
+                <Link href={button.href} className="h-full block">
+                  <DashboardButton
+                    title={button.title}
+                    description={button.description}
+                    icon={button.icon}
+                    color={button.color}
+                  />
+                </Link>
+              ) : (
+                <DashboardButton
+                  title={button.title}
+                  description={button.description}
+                  icon={button.icon}
+                  color={button.color}
+                  onClick={() => openPopup(button.popupType, button.title)}
+                />
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
+
+      {/* Popups */}
+      <DashboardPopup
+        isOpen={activePopup === "bankCash"}
+        onClose={closePopup}
+        title={popupTitle}
+      >
+        <BankAndCashPosition
+          isLoading={isLoading}
+          bankPositions={bankPositions}
+          cashPositions={cashPositions}
+        />
+      </DashboardPopup>
+
+      <DashboardPopup
+        isOpen={activePopup === "receivables"}
+        onClose={closePopup}
+        title={popupTitle}
+      >
+        <Receivable
+          isLoading={isLoading}
+          receivableExport={receivableExport}
+          receivableLocal={receivableLocal}
+        />
+      </DashboardPopup>
+
+      <DashboardPopup
+        isOpen={activePopup === "payables"}
+        onClose={closePopup}
+        title={popupTitle}
+      >
+        <PayableAndLoan
+          isLoading={isLoading}
+          tradersPayable={tradersPayable}
+          loansPayable={loansPayable}
+        />
+      </DashboardPopup>
+
       {listDisplay ? (
         <FabricReport
           data={listData}
