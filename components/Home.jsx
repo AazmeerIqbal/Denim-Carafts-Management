@@ -98,9 +98,7 @@ const DashboardPopup = ({ isOpen, onClose, title, children }) => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.4 }}
             >
-              <div className="space-y-4">
-                {children}
-              </div>
+              <div className="space-y-4">{children}</div>
             </motion.div>
           </motion.div>
         </motion.div>
@@ -1064,7 +1062,7 @@ const Home = () => {
     <>
       <div className="px-6 md:py-6 py-20">
         {/* PDF Export Button */}
-        <div className="flex justify-end mb-4 gap-4">
+        {/* <div className="flex justify-end mb-4 gap-4">
           <motion.button
             onClick={() => generatePDF(false)}
             disabled={isLoading}
@@ -1076,7 +1074,7 @@ const Home = () => {
             <FaFilePdf className="text-lg" />
             Export to PDF
           </motion.button>
-        </div>
+        </div> */}
         {nextScheduledTime && (
           <motion.div
             className="text-sm text-gray-600 mb-4 text-right"
