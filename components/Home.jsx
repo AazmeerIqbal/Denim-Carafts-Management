@@ -335,14 +335,15 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    // getFabricPostions();
-    getCashAndBankPositions();
-  }, [session?.user?.id]);
+  // useEffect(() => {
+  //   // getFabricPostions();
+  //   getCashAndBankPositions();
+  // }, [session?.user?.id]);
 
   // Function to open popup
   const openPopup = (popupType, title) => {
     setActivePopup(popupType);
+    getCashAndBankPositions();
     setPopupTitle(title);
   };
 
