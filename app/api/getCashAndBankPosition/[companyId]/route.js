@@ -14,33 +14,33 @@ export const GET = async (req, { params }) => {
     const bankResult = await pool
       .request()
       .input("IsChildOf", sql.VarChar, "1206002001")
-      .execute("BankAndCashPosition");
+      .execute("MIS_BankAndCashPosition");
 
     // Get Cash In Hand Position
     const cashResult = await pool
       .request()
       .input("IsChildOf", sql.VarChar, "1206001")
-      .execute("BankAndCashPosition");
+      .execute("MIS_BankAndCashPosition");
 
     const receivableExport = await pool
       .request()
       .input("IsChildOf", sql.VarChar, "1201001")
-      .execute("BankAndCashPosition");
+      .execute("MIS_BankAndCashPosition");
 
     const receivableLocal = await pool
       .request()
       .input("IsChildOf", sql.VarChar, "1201002")
-      .execute("BankAndCashPosition");
+      .execute("MIS_BankAndCashPosition");
 
     const tradersPayable = await pool
       .request()
       .input("IsChildOf", sql.VarChar, "2101001")
-      .execute("BankAndCashPosition");
+      .execute("MIS_BankAndCashPosition");
 
     const loansPayable = await pool
       .request()
       .input("IsChildOf", sql.VarChar, "2102001")
-      .execute("BankAndCashPosition");
+      .execute("MIS_BankAndCashPosition");
 
     // Return the results
     return new Response(
